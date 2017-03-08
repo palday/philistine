@@ -122,14 +122,18 @@ def savgol_iaf(raw, picks=None,
         cog = freqs[alpha_band][cog_idx]
     
     if ax:
-        ax.plot(freqs,psd)
-        ax.plot(freqs,psd_smooth)
-        
+        plt_psd, = ax.plot(freqs, psd, label="Raw PSD")
+        plt_smooth, = ax.plot(freqs, psd_smooth, label="Smoothed PSD")
+        plt_pink, = ax.plot(freqs,
+                     np.exp(slope * np.log(freqs) + intercept),
+                     label='$1/f$ fit ($R^2={:0.2}$)'.format(r**2))
         try:
-            ax.plot(freqs_search,psd_search)
+            plt_search, = ax.plot(freqs_search, psd_search,
+                                label='Alpha-band Search Parabola')
+            ax.legend(handles=[plt_psd,plt_smooth,plt_search,plt_pink])
         except UnboundLocalError:
             # this happens when the user fully specified an alpha band 
-            pass
+            ax.legend(handles=[plt_psd,plt_smooth,plt_pink])
             
         ax.set_ylabel("PSD")
         ax.set_xlabel("Hz")
