@@ -1,5 +1,7 @@
 import mne
 import numpy as np
+import pandas as pd
+
 from scipy.signal import savgol_filter, argrelmin
 from scipy.ndimage.measurements import center_of_mass
 from scipy import stats
@@ -7,15 +9,15 @@ from collections import namedtuple
 
 import matplotlib.pyplot as plt
 
-IafEst = namedtuple('IAFEstimate', 
+IafEst = namedtuple('IAFEstimate',
                    ['PeakAlphaFrequency','CenterOfGravity','AlphaBand'])
 
 def savgol_iaf(raw, picks=None,
-               fmin=None, fmax=None, 
-               resolution=0.25, 
+               fmin=None, fmax=None,
+               resolution=0.25,
                average=True,
                ax=None,
-               window_length=11, polyorder=5, 
+               window_length=11, polyorder=5,
                pink_max_r2=0.9):
     """Estimate individual alpha frequency (IAF).
 
@@ -26,68 +28,68 @@ def savgol_iaf(raw, picks=None,
     picks : array-like of int | None
         List of channels to use.
     fmin : int | None
-        Lower bound of alpha frequency band. If None, it will be 
-        empirically estimated using a polynomial fitting method to 
+        Lower bound of alpha frequency band. If None, it will be
+        empirically estimated using a polynomial fitting method to
         determine the edges of the central parabolic peak density.
     fmax : int | None
-        Upper bound of alpha frequency band. If None, it will be 
-        empirically estimated using a polynomial fitting method to 
+        Upper bound of alpha frequency band. If None, it will be
+        empirically estimated using a polynomial fitting method to
         determine the edges of the central parabolic peak density.
     resolution : float
         The resolution in the frequency domain for calculating the PSD.
     average : bool
-        Whether to average the PSD estimates across channels or provide 
-        a separate estimate for each channel. Currently, only True is 
+        Whether to average the PSD estimates across channels or provide
+        a separate estimate for each channel. Currently, only True is
         supported.
     ax : instance of matplotlib Axes | None | False
-        Axes to plot PSD analysis into. If None, axes will be created 
-        (and plot not shown by default). If False, no plotting will be done. 
+        Axes to plot PSD analysis into. If None, axes will be created
+        (and plot not shown by default). If False, no plotting will be done.
     window_length : int
-        Window length in samples to use for Savitzky-Golay smoothing of 
+        Window length in samples to use for Savitzky-Golay smoothing of
         PSD when estimating IAF.
     polyorder : int
-        Polynomial order to use for Savitzky-Golay smoothing of 
+        Polynomial order to use for Savitzky-Golay smoothing of
         PSD when estimating IAF.
-    pink_max_r2 : float 
+    pink_max_r2 : float
         Maximum R^2 allowed when comparing the PSD distribution to the
-        pink noise 1/f distribution on the range 1 to 30 Hz. 
+        pink noise 1/f distribution on the range 1 to 30 Hz.
         If this threshold is exceeded, then IAF is assumed unclear and
         None is returned for both PAF and CoG.
 
     Returns
     -------
     IafEst : instance of ``collections.namedtuple``  called IAFEstimate with
-         fields for the peak alpha frequency (PAF), alpha center of 
+         fields for the peak alpha frequency (PAF), alpha center of
          gravity (CoG), and the bounds of the alpha band (as a tuple).
 
 
     Notes
     -----
-        Based on method developed by 
+        Based on method developed by
         [Andrew Corcoran](https://zenodo.org/badge/latestdoi/80904585).
-    """                   
+    """
     psd, freqs = mne.time_frequency.psd_welch(raw,picks=picks,
                                           n_fft=raw.info['sfreq']/0.25,
                                           fmin=1,fmax=30)
     if ax is None:
         fig = plt.figure()
         ax = plt.gca()
-        
+
     if average:
-        psd = np.mean(psd,axis=0)                                       
-    
+        psd = np.mean(psd,axis=0)
+
     if fmin is None or fmax is None:
         if fmin is None:
             fmin_bound = 5
         else:
             fmin_bound = fmin
-            
+
         if fmax is None:
             fmax_bound = 15
         else:
             fmax_bound = fmax
-    
-        
+
+
         alpha_search = np.logical_and(freqs >= fmin_bound, freqs <= fmax_bound)
         freqs_search = freqs[alpha_search]
         psd_search = savgol_filter(psd[alpha_search],
@@ -104,10 +106,10 @@ def savgol_iaf(raw, picks=None,
             # 'median' alpha of 10 Hz
             right_min = argrelmin(psd_search[freqs_search > 10])[0][0]
             fmax = freqs_search[freqs_search > 10][right_min]
-        
+
     psd_smooth = savgol_filter(psd,window_length=11,polyorder=5)
     alpha_band = np.logical_and(freqs >= fmin, freqs <= fmax)
-    
+
     slope, intercept, r, p, se = stats.linregress(np.log(freqs),
                                                   np.log(psd_smooth))
     if r**2 > pink_max_r2:
@@ -116,11 +118,11 @@ def savgol_iaf(raw, picks=None,
     else:
         paf_idx = np.argmax(psd_smooth[alpha_band])
         paf = freqs[alpha_band][paf_idx]
-    
+
         cog_idx = center_of_mass(psd_smooth[alpha_band])
         cog_idx = int(np.round(cog_idx[0]))
         cog = freqs[alpha_band][cog_idx]
-    
+
     if ax:
         plt_psd, = ax.plot(freqs, psd, label="Raw PSD")
         plt_smooth, = ax.plot(freqs, psd_smooth, label="Smoothed PSD")
@@ -132,19 +134,19 @@ def savgol_iaf(raw, picks=None,
                                 label='Alpha-band Search Parabola')
             ax.legend(handles=[plt_psd,plt_smooth,plt_search,plt_pink])
         except UnboundLocalError:
-            # this happens when the user fully specified an alpha band 
+            # this happens when the user fully specified an alpha band
             ax.legend(handles=[plt_psd,plt_smooth,plt_pink])
-            
+
         ax.set_ylabel("PSD")
         ax.set_xlabel("Hz")
-            
+
     return IafEst(paf, cog, (fmin, fmax))
 
-def abs_threshold(epochs, threshold, 
+def abs_threshold(epochs, threshold,
                   eeg=True, eog=False, misc=False, stim=False):
-    '''Compute boolean mask for dropping epochs based on absolute 
+    '''Compute boolean mask for dropping epochs based on absolute
         voltage threshold
-    
+
     Parameters
     ----------
     epochs : instance of Epochs
@@ -159,16 +161,16 @@ def abs_threshold(epochs, threshold,
         If True include miscellaneous channels in thresholding procedure.
     stim : bool
         If True include stimulus channels in thresholding procedure.
-        
+
     Returns
     -------
     rej : instance of ndarray
         Boolean mask for whether or not the epochs exceeded the rejection
         threshold at any time point for any channel.
-        
+
     Notes
     -----
-    
+
     More precise selection of channels can be performed by passing a
     'reduced' Epochs instance from the various ``picks`` methods.
     '''
@@ -179,3 +181,74 @@ def abs_threshold(epochs, threshold,
     rej = np.any( np.abs(data) > threshold, axis=(-1,-2))
 
     return rej
+
+def retrieve(epochs, windows, items=None,
+             summary_fnc=dict(mean=np.mean),**kwargs):
+    '''Retrieve summarized epoch data for further statistical analysis
+
+    Parameters
+    ----------
+    epochs : instance of Epochs
+        The epoched data to extract windowed summary statistics from.
+    windows : dict of tuples
+        Named tuples defining time windows for extraction (relative to
+        epoch-locking event). Units are dependent on the keyword argument
+        scale_time. Default is milliseconds.
+    summary_fnc : dict of functions
+        Functions to apply to generate summary statistics in each time
+        window. The keys serve as column names.
+    items : ndarray | None
+        Items corresponding to the individual epoch / trials (for
+        e.g. repeated measure designs). Shape should be (n_epochs,). If
+        None (default), then item numbers will not be included in the
+        generated data frame.
+    kwargs :
+        Keyword arguments to pass to Epochs.to_data_frame. Particularly
+        relevant are ``scalings`` and ``scale_time``.
+
+    Returns
+    -------
+    dat : instance of pandas.DataFrame
+        Long-format data frame of summarized data
+
+    Notes
+    -----
+    '''
+
+    df = epochs.to_data_frame(index=['epoch','time'],**kwargs)
+    chs = [c for c in df.columns if c not in ('condition')]
+    factors = ['epoch','condition'] # the order is important here! otherwise the shortcut with items later won't  work
+    sel = factors + chs
+    df = df.reset_index()
+
+    id_vars = ['epoch','condition','win','wname']
+    if items is not None:
+        id_vars += ['item']
+
+    dat = pd.DataFrame(columns=id_vars)
+    for fnc_name, fnc in summary_fnc.items():
+        d = []
+        for w in windows:
+            temp = df[ df.time >= windows[w][0] ]
+            dfw = temp[ temp.time <= windows[w][1] ]
+            dfw_summary = dfw[sel].groupby(factors).apply(fnc)
+
+            if items is not None:
+                dfw_summary["item"] = items
+            dfw_summary["win"] = "{}..{}".format(*windows[w])
+            dfw_summary["wname"] = w
+            d.append(dfw_summary)
+
+        d = pd.concat(d)
+        # get rid of epoch and condition if they're already columns
+        # before we can move them from the index to columns
+        d.drop('epoch',axis=1,inplace=True,errors='ignore')
+        d.drop('condition',axis=1,inplace=True,errors='ignore')
+        d.reset_index(inplace=True)
+        d = pd.melt(d, id_vars=id_vars,
+                       value_vars = chs,
+                       var_name = "channel",
+                       value_name = fnc_name)
+        dat = pd.merge(dat,d,how='outer')
+
+    return dat
