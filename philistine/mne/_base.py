@@ -62,7 +62,6 @@ def savgol_iaf(raw, picks=None,
          fields for the peak alpha frequency (PAF), alpha center of
          gravity (CoG), and the bounds of the alpha band (as a tuple).
 
-
     Notes
     -----
         Based on method developed by
@@ -89,7 +88,6 @@ def savgol_iaf(raw, picks=None,
         else:
             fmax_bound = fmax
 
-
         alpha_search = np.logical_and(freqs >= fmin_bound, freqs <= fmax_bound)
         freqs_search = freqs[alpha_search]
         psd_search = savgol_filter(psd[alpha_search],
@@ -107,7 +105,7 @@ def savgol_iaf(raw, picks=None,
             right_min = argrelmin(psd_search[freqs_search > 10])[0][0]
             fmax = freqs_search[freqs_search > 10][right_min]
 
-    psd_smooth = savgol_filter(psd,window_length=11,polyorder=5)
+    psd_smooth = savgol_filter(psd,window_length=window_length,polyorder=polyorder)
     alpha_band = np.logical_and(freqs >= fmin, freqs <= fmax)
 
     slope, intercept, r, p, se = stats.linregress(np.log(freqs),
@@ -136,6 +134,173 @@ def savgol_iaf(raw, picks=None,
         except UnboundLocalError:
             # this happens when the user fully specified an alpha band
             ax.legend(handles=[plt_psd,plt_smooth,plt_pink])
+
+        ax.set_ylabel("PSD")
+        ax.set_xlabel("Hz")
+
+    return IafEst(paf, cog, (fmin, fmax))
+
+def attenuation_iaf(raws, picks=None,
+               fmin=None, fmax=None,
+               resolution=0.25,
+               average=True,
+               ax=None,
+               savgol = False,
+               window_length=11, polyorder=5,
+               flat_max_r=0.98):
+    """Estimate individual alpha frequency (IAF).
+
+    Parameters
+    ----------
+    raws : list-like of Raw
+        Two Raws to calculate IAF from difference (attenuation) in PSD from.
+    picks : array-like of int | None
+        List of channels to use.
+    fmin : int | None
+        Lower bound of alpha frequency band. If None, it will be
+        empirically estimated using a polynomial fitting method to
+        determine the edges of the central parabolic peak density.
+    fmax : int | None
+        Upper bound of alpha frequency band. If None, it will be
+        empirically estimated using a polynomial fitting method to
+        determine the edges of the central parabolic peak density.
+    resolution : float
+        The resolution in the frequency domain for calculating the PSD.
+    average : bool
+        Whether to average the PSD estimates across channels or provide
+        a separate estimate for each channel. Currently, only True is
+        supported.
+    ax : instance of matplotlib Axes | None | False
+        Axes to plot PSD analysis into. If None, axes will be created
+        (and plot not shown by default). If False, no plotting will be done.
+    savgol : False | 'each' | 'diff'
+        Use Savitzky-Golay filtering to smooth PSD estimates -- either applied to either
+        each PSD estimate or to the difference (i.e. the attenuation estimate).
+    window_length : int
+        Window length in samples to use for Savitzky-Golay smoothing of
+        PSD when estimating IAF.
+    polyorder : int
+        Polynomial order to use for Savitzky-Golay smoothing of
+        PSD when estimating IAF.
+    flat_max_r: float
+        Maximum (Pearson) correlation allowed when comparing the raw PSD distributions to each other
+        in the range 1 to 30 Hz.
+        If this threshold is exceeded, then IAF is assumed unclear and
+        None is returned for both PAF and CoG.
+
+    Returns
+    -------
+    IafEst : instance of ``collections.namedtuple``  called IAFEstimate with
+         fields for the peak alpha frequency (PAF), alpha center of
+         gravity (CoG), and the bounds of the alpha band (as a tuple).
+
+    Notes
+    -----
+        Based on method developed by
+        [Andrew Corcoran](https://zenodo.org/badge/latestdoi/80904585).
+    """
+
+    #     psd_eo, freqs_eo = psd_welch(eo,fmin=7,fmax=13,picks=picks,n_fft=500,n_overlap=100)
+    #     psd_ec, freqs_ec = psd_welch(ec,fmin=7,fmax=13,picks=picks,n_fft=500,n_overlap=100)
+    #     assert np.allclose(freqs_eo,freqs_ec)
+    #
+    #     psd_net = np.abs(psd_ec - psd_eo)
+    #     psd_net = np.mean(psd_net,axis=0)
+    #     iaf = freqs_ec[np.argmax(psd_net)]
+
+    def psd_est(r):
+        return mne.time_frequency.psd_welch(r,picks=picks,
+                                          n_fft=r.info['sfreq']/0.25,
+                                          fmin=1,fmax=30)
+
+    psd, freqs = zip(*[psd_est(r) for r in raws])
+    assert np.allclose(*freqs)
+
+    if savgol == 'each':
+        psd = [ savgol_filter(p,window_length=window_length,polyorder=polyorder) for p in psd ]
+
+    att_psd = psd[1] - psd[0]
+
+    if average:
+        att_psd = np.mean(att_psd,axis=0)
+        psd = [ np.mean(p,axis=0) for p in psd ]
+
+    att_psd = np.abs(att_psd)
+
+    att_freqs = freqs[0]
+
+    if ax is None:
+        fig = plt.figure()
+        ax = plt.gca()
+
+    if fmin is None or fmax is None:
+        if fmin is None:
+            fmin_bound = 5
+        else:
+            fmin_bound = fmin
+
+        if fmax is None:
+            fmax_bound = 15
+        else:
+            fmax_bound = fmax
+
+        alpha_search = np.logical_and(att_freqs >= fmin_bound, att_freqs <= fmax_bound)
+        freqs_search = att_freqs[alpha_search]
+        psd_search = savgol_filter(att_psd[alpha_search],
+                             window_length = att_psd[alpha_search].shape[0],
+                             polyorder = 10)
+        # argrel min returns a tuple, so we flatten that with [0]
+        # then we get the last element of the resulting array with [-1]
+        # which is the minimum closest to the 'median' alpha of 10 Hz
+        if fmin is None:
+            left_min = argrelmin(psd_search[freqs_search < 10])[0][-1]
+            fmin = freqs_search[freqs_search < 10][left_min]
+        if fmax is None:
+            # here we want the first element of the array which is closest to the
+            # 'median' alpha of 10 Hz
+            right_min = argrelmin(psd_search[freqs_search > 10])[0][0]
+            fmax = freqs_search[freqs_search > 10][right_min]
+
+    if savgol == 'diff':
+        att_psd = savgol_filter(att_psd,window_length=window_length,polyorder=polyorder)
+
+    alpha_band = np.logical_and(att_freqs >= fmin, att_freqs <= fmax)
+
+    r, p = stats.pearsonr(psd[0], psd[1])
+
+    if r > flat_max_r:
+        paf = None
+        cog = None
+    else:
+        paf_idx = np.argmax(att_psd[alpha_band])
+        paf = att_freqs[alpha_band][paf_idx]
+
+        cog_idx = center_of_mass(att_psd[alpha_band])
+        cog_idx = int(np.round(cog_idx[0]))
+        cog = att_freqs[alpha_band][cog_idx]
+
+    if ax:
+        plt_psd1, = ax.plot(freqs[0], psd[0],
+                   label="Raw PSD #1 {}".format(
+                                        '(with SG-Smoothing)' if savgol == 'each' else ''))
+        plt_psd2, = ax.plot(freqs[1], psd[1],
+                   label="Raw PSD #2 {}".format(
+                                        '(with SG-Smoothing)' if savgol == 'each' else ''))
+        plt_att_psd, = ax.plot(att_freqs, att_psd,
+                   label="Attenuated PSD {}".format(
+                                        '(with SG-Smoothing)' if savgol == 'diff' else ''))
+#         plt_pink, = ax.plot(att_freqs,
+#                      np.exp(slope * np.log(att_freqs) + intercept),
+#                      label='$1/f$ fit ($R^2={:0.2}$)'.format(r**2))
+        ax.text(np.max(att_freqs)*.5, np.max(att_psd)*.67,
+                'Raw PSD Pearson $r={:0.2}$'.format(r))
+        try:
+            plt_search, = ax.plot(freqs_search, psd_search,
+                                label='Alpha-band Search Parabola')
+            ax.legend(handles=[plt_psd1, plt_psd2, plt_att_psd, plt_search])
+        except UnboundLocalError:
+            # this happens when the user fully specified an alpha band
+            ax.legend(handles=[plt_psd1, plt_psd2, plt_att_psd])
 
         ax.set_ylabel("PSD")
         ax.set_xlabel("Hz")
