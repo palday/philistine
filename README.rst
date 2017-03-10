@@ -14,7 +14,7 @@ Overview
 Philistine is a collection of hopefully useful functions in Python for statistics and analysis of EEG data using existing packages in the Python ecosystem. It is not intended to be a standalone package, but rather a convenient way to distribute manipulations that I (Phillip) find useful in my own work.
 
 
-This is very much alpha software under active development and the API is subject to change in a rather volatile fashion as improvements, corrections, etc. are made. The idea is provide a convenient way to redistribute functions that I (Phillip) find useful. The hope is that many of these functions are eventually integrated into packages such as MNE, [bambi](https://github.com/bambinos/bambi), etc. At that point, the functions will be changed into thin wrappers for those other packages, deprecated and eventually removed.
+This is very much alpha software under active development and the API is subject to change in a rather volatile fashion as improvements, corrections, etc. are made. The idea is provide a convenient way to redistribute functions that I (Phillip) find useful. The hope is that many of these functions are eventually integrated into packages such as MNE, `bambi <https://github.com/bambinos/bambi>`_, etc. At that point, the functions will be changed into thin wrappers for those other packages, deprecated and eventually removed.
 
 
 Installation
