@@ -24,7 +24,7 @@ Philistine requires a working Python interpreter (either 2.7+ or 3+).
 
 Assuming a standard Python environment is installed on your machine (including pip), Philistine itself can be installed in one line using pip:
 
-    pip install bambi
+    pip install philistine
 
 Alternatively, if you want the bleeding edge version of the package, you can install from GitLab:
 
