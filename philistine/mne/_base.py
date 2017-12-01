@@ -68,7 +68,7 @@ def savgol_iaf(raw, picks=None,
         [Andrew Corcoran](https://zenodo.org/badge/latestdoi/80904585).
     """
     psd, freqs = mne.time_frequency.psd_welch(raw,picks=picks,
-                                          n_fft=raw.info['sfreq']/0.25,
+                                          n_fft=int(raw.info['sfreq'] / resolution),
                                           fmin=1,fmax=30)
     if ax is None:
         fig = plt.figure()
@@ -210,7 +210,7 @@ def attenuation_iaf(raws, picks=None,
 
     def psd_est(r):
         return mne.time_frequency.psd_welch(r,picks=picks,
-                                          n_fft=r.info['sfreq']/0.25,
+                                          n_fft=int(r.info['sfreq'] / resolution),
                                           fmin=1,fmax=30)
 
     psd, freqs = zip(*[psd_est(r) for r in raws])
