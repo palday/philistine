@@ -58,7 +58,7 @@ def savgol_iaf(raw, picks=None,
 
     Returns
     -------
-    IafEst : instance of ``collections.namedtuple``  called IAFEstimate with
+    IafEst : instance of ``collections.namedtuple`` called IAFEstimate with
          fields for the peak alpha frequency (PAF), alpha center of
          gravity (CoG), and the bounds of the alpha band (as a tuple).
 
@@ -67,15 +67,15 @@ def savgol_iaf(raw, picks=None,
         Based on method developed by
         [Andrew Corcoran](https://zenodo.org/badge/latestdoi/80904585).
     """
-    psd, freqs = mne.time_frequency.psd_welch(raw,picks=picks,
-                                          n_fft=raw.info['sfreq']/0.25,
-                                          fmin=1,fmax=30)
+    psd, freqs = mne.time_frequency.psd_welch(
+        raw, picks=picks, fmin=1, fmax=30, n_fft=int(raw.info['sfreq'] / 0.25))
+
     if ax is None:
         fig = plt.figure()
         ax = plt.gca()
 
     if average:
-        psd = np.mean(psd,axis=0)
+        psd = np.mean(psd, axis=0)
 
     if fmin is None or fmax is None:
         if fmin is None:
@@ -90,9 +90,9 @@ def savgol_iaf(raw, picks=None,
 
         alpha_search = np.logical_and(freqs >= fmin_bound, freqs <= fmax_bound)
         freqs_search = freqs[alpha_search]
-        psd_search = savgol_filter(psd[alpha_search],
-                             window_length = psd[alpha_search].shape[0],
-                             polyorder = 10)
+        psd_search = savgol_filter(
+            psd[alpha_search], window_length=psd[alpha_search].shape[0],
+            polyorder=10)
         # argrel min returns a tuple, so we flatten that with [0]
         # then we get the last element of the resulting array with [-1]
         # which is the minimum closest to the 'median' alpha of 10 Hz
