@@ -30,11 +30,13 @@ def savgol_iaf(raw, picks=None,
     fmin : int | None
         Lower bound of alpha frequency band. If None, it will be
         empirically estimated using a polynomial fitting method to
-        determine the edges of the central parabolic peak density.
+        determine the edges of the central parabolic peak density,
+        with assumed center of 10 Hz.
     fmax : int | None
         Upper bound of alpha frequency band. If None, it will be
         empirically estimated using a polynomial fitting method to
-        determine the edges of the central parabolic peak density.
+        determine the edges of the central parabolic peak density,
+        with assumed center of 10 Hz.
     resolution : float
         The resolution in the frequency domain for calculating the PSD.
     average : bool
@@ -104,14 +106,21 @@ def savgol_iaf(raw, picks=None,
         # then we get the last element of the resulting array with [-1]
         # which is the minimum closest to the 'median' alpha of 10 Hz
         if fmin is None:
-            left_min = argrelmin(psd_search[freqs_search < 10])[0][-1]
-            fmin = freqs_search[freqs_search < 10][left_min]
+            try:
+                left_min = argrelmin(psd_search[freqs_search < 10])[0][-1]
+                fmin = freqs_search[freqs_search < 10][left_min]
+            except IndexError:
+                raise ValueError("Unable to automatically determine lower end"
+                    + "of alpha band.")
         if fmax is None:
             # here we want the first element of the array which is closest to
             # the 'median' alpha of 10 Hz
-            right_min = argrelmin(psd_search[freqs_search > 10])[0][0]
-            fmax = freqs_search[freqs_search > 10][right_min]
-
+            try:
+                right_min = argrelmin(psd_search[freqs_search > 10])[0][0]
+                fmax = freqs_search[freqs_search > 10][right_min]
+            except IndexError:
+                raise ValueError("Unable to automatically determine upper end"
+                    + "of alpha band.")
     psd_smooth = savgol_filter(psd,
                                window_length=window_length,
                                polyorder=polyorder)
@@ -168,11 +177,13 @@ def attenuation_iaf(raws, picks=None,
     fmin : int | None
         Lower bound of alpha frequency band. If None, it will be
         empirically estimated using a polynomial fitting method to
-        determine the edges of the central parabolic peak density.
+        determine the edges of the central parabolic peak density,
+        with assumed center of 10 Hz.
     fmax : int | None
         Upper bound of alpha frequency band. If None, it will be
         empirically estimated using a polynomial fitting method to
-        determine the edges of the central parabolic peak density.
+        determine the edges of the central parabolic peak density,
+        with assumed center of 10 Hz.
     resolution : float
         The resolution in the frequency domain for calculating the PSD.
     average : bool
@@ -273,13 +284,21 @@ def attenuation_iaf(raws, picks=None,
         # then we get the last element of the resulting array with [-1]
         # which is the minimum closest to the 'median' alpha of 10 Hz
         if fmin is None:
-            left_min = argrelmin(psd_search[freqs_search < 10])[0][-1]
-            fmin = freqs_search[freqs_search < 10][left_min]
+            try:
+                left_min = argrelmin(psd_search[freqs_search < 10])[0][-1]
+                fmin = freqs_search[freqs_search < 10][left_min]
+            except IndexError:
+                raise ValueError("Unable to automatically determine lower end"
+                    + "of alpha band.")
         if fmax is None:
             # here we want the first element of the array which is closest to
             # the 'median' alpha of 10 Hz
-            right_min = argrelmin(psd_search[freqs_search > 10])[0][0]
-            fmax = freqs_search[freqs_search > 10][right_min]
+            try:
+                right_min = argrelmin(psd_search[freqs_search > 10])[0][0]
+                fmax = freqs_search[freqs_search > 10][right_min]
+            except IndexError:
+                raise ValueError("Unable to automatically determine upper end"
+                    + "of alpha band.")
 
     if savgol == 'diff':
         att_psd = savgol_filter(att_psd,
