@@ -66,10 +66,16 @@ def savgol_iaf(raw, picks=None,
     -----
         Based on method developed by
         [Andrew Corcoran](https://zenodo.org/badge/latestdoi/80904585).
+        In addition to appropriate software citation (Zenodo DOI or
+        git commit), please cite:
+        Corcoran, A. W., Alday, P. M., Schlesewsky, M., &
+        Bornkessel-Schlesewsky, I. (2018). Toward a reliable, automated method
+        of individual alpha frequency (IAF) quantification. Psychophysiology,
+        e13064. doi:10.1111/psyp.13064
     """
     psd, freqs = mne.time_frequency.psd_welch(raw,picks=picks,
-                                          n_fft=int(raw.info['sfreq'] / resolution),
-                                          fmin=1,fmax=30)
+                                    n_fft=int(raw.info['sfreq'] / resolution),
+                                    fmin=1,fmax=30)
     if ax is None:
         fig = plt.figure()
         ax = plt.gca()
@@ -88,7 +94,8 @@ def savgol_iaf(raw, picks=None,
         else:
             fmax_bound = fmax
 
-        alpha_search = np.logical_and(freqs >= fmin_bound, freqs <= fmax_bound)
+        alpha_search = np.logical_and(freqs >= fmin_bound,
+                                      freqs <= fmax_bound)
         freqs_search = freqs[alpha_search]
         psd_search = savgol_filter(psd[alpha_search],
                              window_length = psd[alpha_search].shape[0],
@@ -100,12 +107,14 @@ def savgol_iaf(raw, picks=None,
             left_min = argrelmin(psd_search[freqs_search < 10])[0][-1]
             fmin = freqs_search[freqs_search < 10][left_min]
         if fmax is None:
-            # here we want the first element of the array which is closest to the
-            # 'median' alpha of 10 Hz
+            # here we want the first element of the array which is closest to
+            # the 'median' alpha of 10 Hz
             right_min = argrelmin(psd_search[freqs_search > 10])[0][0]
             fmax = freqs_search[freqs_search > 10][right_min]
 
-    psd_smooth = savgol_filter(psd,window_length=window_length,polyorder=polyorder)
+    psd_smooth = savgol_filter(psd,
+                               window_length=window_length,
+                               polyorder=polyorder)
     alpha_band = np.logical_and(freqs >= fmin, freqs <= fmax)
 
     slope, intercept, r, p, se = stats.linregress(np.log(freqs),
@@ -174,8 +183,9 @@ def attenuation_iaf(raws, picks=None,
         Axes to plot PSD analysis into. If None, axes will be created
         (and plot not shown by default). If False, no plotting will be done.
     savgol : False | 'each' | 'diff'
-        Use Savitzky-Golay filtering to smooth PSD estimates -- either applied to either
-        each PSD estimate or to the difference (i.e. the attenuation estimate).
+        Use Savitzky-Golay filtering to smooth PSD estimates -- either applied
+        to either each PSD estimate or to the difference (i.e. the attenuation
+        estimate).
     window_length : int
         Window length in samples to use for Savitzky-Golay smoothing of
         PSD when estimating IAF.
@@ -183,8 +193,8 @@ def attenuation_iaf(raws, picks=None,
         Polynomial order to use for Savitzky-Golay smoothing of
         PSD when estimating IAF.
     flat_max_r: float
-        Maximum (Pearson) correlation allowed when comparing the raw PSD distributions to each other
-        in the range 1 to 30 Hz.
+        Maximum (Pearson) correlation allowed when comparing the raw PSD
+        distributions to each other in the range 1 to 30 Hz.
         If this threshold is exceeded, then IAF is assumed unclear and
         None is returned for both PAF and CoG.
 
@@ -198,6 +208,13 @@ def attenuation_iaf(raws, picks=None,
     -----
         Based on method developed by
         [Andrew Corcoran](https://zenodo.org/badge/latestdoi/80904585).
+        In addition to appropriate software citation (Zenodo DOI or
+        git commit), please cite:
+        Corcoran, A. W., Alday, P. M., Schlesewsky, M., &
+        Bornkessel-Schlesewsky, I. (2018). Toward a reliable, automated method
+        of individual alpha frequency (IAF) quantification. Psychophysiology,
+        e13064. doi:10.1111/psyp.13064
+
     """
 
     #     psd_eo, freqs_eo = psd_welch(eo,fmin=7,fmax=13,picks=picks,n_fft=500,n_overlap=100)
@@ -210,14 +227,16 @@ def attenuation_iaf(raws, picks=None,
 
     def psd_est(r):
         return mne.time_frequency.psd_welch(r,picks=picks,
-                                          n_fft=int(r.info['sfreq'] / resolution),
-                                          fmin=1,fmax=30)
+                                    n_fft=int(r.info['sfreq'] / resolution),
+                                    fmin=1,fmax=30)
 
     psd, freqs = zip(*[psd_est(r) for r in raws])
     assert np.allclose(*freqs)
 
     if savgol == 'each':
-        psd = [ savgol_filter(p,window_length=window_length,polyorder=polyorder) for p in psd ]
+        psd = [ savgol_filter(p,
+                              window_length=window_length,
+                              polyorder=polyorder) for p in psd ]
 
     att_psd = psd[1] - psd[0]
 
@@ -244,7 +263,8 @@ def attenuation_iaf(raws, picks=None,
         else:
             fmax_bound = fmax
 
-        alpha_search = np.logical_and(att_freqs >= fmin_bound, att_freqs <= fmax_bound)
+        alpha_search = np.logical_and(att_freqs >= fmin_bound,
+                                      att_freqs <= fmax_bound)
         freqs_search = att_freqs[alpha_search]
         psd_search = savgol_filter(att_psd[alpha_search],
                              window_length = att_psd[alpha_search].shape[0],
@@ -256,13 +276,15 @@ def attenuation_iaf(raws, picks=None,
             left_min = argrelmin(psd_search[freqs_search < 10])[0][-1]
             fmin = freqs_search[freqs_search < 10][left_min]
         if fmax is None:
-            # here we want the first element of the array which is closest to the
-            # 'median' alpha of 10 Hz
+            # here we want the first element of the array which is closest to
+            # the 'median' alpha of 10 Hz
             right_min = argrelmin(psd_search[freqs_search > 10])[0][0]
             fmax = freqs_search[freqs_search > 10][right_min]
 
     if savgol == 'diff':
-        att_psd = savgol_filter(att_psd,window_length=window_length,polyorder=polyorder)
+        att_psd = savgol_filter(att_psd,
+                                window_length=window_length,
+                                polyorder=polyorder)
 
     alpha_band = np.logical_and(att_freqs >= fmin, att_freqs <= fmax)
 
@@ -282,13 +304,13 @@ def attenuation_iaf(raws, picks=None,
     if ax:
         plt_psd1, = ax.plot(freqs[0], psd[0],
                    label="Raw PSD #1 {}".format(
-                                        '(with SG-Smoothing)' if savgol == 'each' else ''))
+                        '(with SG-Smoothing)' if savgol == 'each' else ''))
         plt_psd2, = ax.plot(freqs[1], psd[1],
                    label="Raw PSD #2 {}".format(
-                                        '(with SG-Smoothing)' if savgol == 'each' else ''))
+                        '(with SG-Smoothing)' if savgol == 'each' else ''))
         plt_att_psd, = ax.plot(att_freqs, att_psd,
                    label="Attenuated PSD {}".format(
-                                        '(with SG-Smoothing)' if savgol == 'diff' else ''))
+                        '(with SG-Smoothing)' if savgol == 'diff' else ''))
 #         plt_pink, = ax.plot(att_freqs,
 #                      np.exp(slope * np.log(att_freqs) + intercept),
 #                      label='$1/f$ fit ($R^2={:0.2}$)'.format(r**2))
@@ -382,7 +404,9 @@ def retrieve(epochs, windows, items=None,
 
     df = epochs.to_data_frame(index=['epoch','time'],**kwargs)
     chs = [c for c in df.columns if c not in ('condition')]
-    factors = ['epoch','condition'] # the order is important here! otherwise the shortcut with items later won't  work
+    # the order is important here!
+    # otherwise the shortcut with items later won't  work
+    factors = ['epoch','condition']
     sel = factors + chs
     df = df.reset_index()
 
