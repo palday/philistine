@@ -111,7 +111,7 @@ def savgol_iaf(raw, picks=None,
                 fmin = freqs_search[freqs_search < 10][left_min]
             except IndexError:
                 raise ValueError("Unable to automatically determine lower end"
-                    + "of alpha band.")
+                    + " of alpha band.")
         if fmax is None:
             # here we want the first element of the array which is closest to
             # the 'median' alpha of 10 Hz
@@ -120,7 +120,7 @@ def savgol_iaf(raw, picks=None,
                 fmax = freqs_search[freqs_search > 10][right_min]
             except IndexError:
                 raise ValueError("Unable to automatically determine upper end"
-                    + "of alpha band.")
+                    + " of alpha band.")
     psd_smooth = savgol_filter(psd,
                                window_length=window_length,
                                polyorder=polyorder)
@@ -289,7 +289,7 @@ def attenuation_iaf(raws, picks=None,
                 fmin = freqs_search[freqs_search < 10][left_min]
             except IndexError:
                 raise ValueError("Unable to automatically determine lower end"
-                    + "of alpha band.")
+                    + " of alpha band.")
         if fmax is None:
             # here we want the first element of the array which is closest to
             # the 'median' alpha of 10 Hz
@@ -298,7 +298,7 @@ def attenuation_iaf(raws, picks=None,
                 fmax = freqs_search[freqs_search > 10][right_min]
             except IndexError:
                 raise ValueError("Unable to automatically determine upper end"
-                    + "of alpha band.")
+                    + " of alpha band.")
 
     if savgol == 'diff':
         att_psd = savgol_filter(att_psd,
