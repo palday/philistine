@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 #
-# Copyright (C) 2017 Phillip Alday <phillip.alday@unisa.edu.au>
+# Copyright (C) 2017-2018 Phillip Alday <phillip.alday@mpi.nl>
 
 import os
 from os import path as op
