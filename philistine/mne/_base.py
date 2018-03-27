@@ -1,3 +1,9 @@
+#! /usr/bin/env python
+#
+# Copyright (C) 2017-2018 Phillip Alday <phillip.alday@mpi.nl>
+
+from __future__ import print_function, division
+
 import mne
 import numpy as np
 import pandas as pd
