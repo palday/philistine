@@ -24,11 +24,11 @@ Philistine requires a working Python interpreter (either 2.7+ or 3+).
 
 Assuming a standard Python environment is installed on your machine (including pip), Philistine itself can be installed in one line using pip:
 
-    pip install philistine
+    python -m pip install --user --upgrade philistine
 
 Alternatively, if you want the bleeding edge version of the package, you can install from GitLab:
 
-    pip install git+https://gitlab.com/palday/philistine.git
+    python -m pip install --user --upgrade git+https://gitlab.com/palday/philistine.git
 
 Dependencies should be handled automatically by pip.
 
