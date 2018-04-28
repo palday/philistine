@@ -4,3 +4,5 @@
 
 from ._base import (savgol_iaf, attenuation_iaf,
                     abs_threshold, retrieve)
+
+from .io import (write_raw_brainvision, )
