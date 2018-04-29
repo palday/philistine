@@ -8,8 +8,18 @@ import mne
 import numpy as np
 import pandas as pd
 
+from ..import __version__
 
+# TODO: include boundaries in MNE annotation as segment markers in write_raw_brainvision
+# TODO: expose support for different numeric formats
+# TODO: support export to vectorized data
+# TODO: allow arbitrary names for vmrk and eeg
+# TODO: epochs exporter using segment markers
+# TODO: epochs importer using segment markers (is there another epochs format)
+# TODO: make helper dicts private
 # binary_int_16, ascii as future formats?
+
+
 supported_formats = {'binary_float32' : 'IEEE_FLOAT_32',
                      'binary_int16'   : 'INT_16'}
 
@@ -54,7 +64,7 @@ def write_raw_brainvision(raw, vhdr_fname, events=True):
     elif events == True:
         events = mne.find_events(raw,verbose=False)
     else:
-        raise ValueError('events must be boolean or 3 x n_events darray.')
+        raise ValueError('events must be boolean or 3 x n_events ndarray.')
 
     # eliminate the stim channel
     raw = raw.copy().pick_types(eeg=True, eog=True, meg=True, misc=True, stim=False)
@@ -70,7 +80,7 @@ def _write_vmrk_file(vmrk_fname, eeg_fname, events):
 
     with open(vmrk_fname, 'w', encoding='utf-8') as fout:
         print(r'Brain Vision Data Exchange Marker File, Version 1.0', file=fout)
-        print(r';Exported from MNE-Python using philistine', file=fout)
+        print(r';Exported from MNE-Python using philistine {}'.format(__version__), file=fout)
         print(r'', file=fout)
         print(r'[Common Infos]', file=fout)
         print(r'DataFile={}'.format(eeg_fname), file=fout)
@@ -184,4 +194,9 @@ def _anonymize_bv(vmrk_fname):
 
 def _rename_bv(vhdr_fname):
     ''' rename a brainvision file, including updating internal links'''
+    pass
+
+def _extract_bv_segments(vmrk_fname):
+    ''' Extract segments from BrainVision VMRK file)
+    '''
     pass
