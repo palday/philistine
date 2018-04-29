@@ -466,3 +466,68 @@ def retrieve(epochs, windows, items=None,
         dat = pd.merge(dat,d,how='outer')
 
     return dat
+
+def get_design_matrix(epochs, intercept=False, event_id=None):
+    ''' Return a design matrix based on the event_id
+
+    Parameters
+    ----------
+    epochs : instance of Epochs
+        The epoched data to construct a design matrix for.
+
+    intecept : bool
+        Whether to include an intercept column in the design matrix.
+        Currently, this has no *impact* on the remaining parameterization,
+        so including the intercept will lead to a rank-deficient matrix.
+
+    event_id : dict | None
+        The event_id to use for constructing the design matrix. If None,
+        then the event_id attribute of the epochs object is used.
+
+    Returns
+    -------
+    design:  Tuple of numpy.ndarray and list of strings
+        Design matrix corresponding to the implicit factorial design encoded
+        via MNE's hierarchical event labels and list of column names.
+
+    Notes
+    -----
+
+    This currently returns a 1-0 overparamertized design matrix with no
+    explicit interaction terms.
+
+    '''
+
+    from itertools import product
+
+    if event_id is None:
+        event_id = epochs.event_id
+
+    id_event = dict( [(v,k) for (k,v) in event_id.items()] )
+
+    pred_names = list()
+    preds = list()
+    n = epochs.events.shape[0]
+    ev_codes = epochs.events[:,2]
+
+    if intercept:
+        pred_names.append("intercept")
+        preds.append(np.ones(n))
+
+    factors =  [list(set(s)) for s in zip(*[k.split('/') for k in event_id])]
+
+    terms = []
+    for f in factors: terms.extend(f)
+
+    for t in terms:
+        pred_names.append(t)
+        col = np.zeros(n)
+        for code in id_event:
+            if t in id_event[code]:
+                col[ev_codes == code] = 1.
+            else:
+                pass
+        preds.append(col)
+
+
+    return np.stack(preds).T, pred_names
