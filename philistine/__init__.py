@@ -5,3 +5,4 @@
 __version__ = '0.1a2+dev'
 
 from . import mne
+from ._base import (invert_dict, )
