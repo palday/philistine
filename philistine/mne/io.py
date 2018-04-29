@@ -47,13 +47,15 @@ def write_raw_brainvision(raw, vhdr_fname, events=True):
     vmrk_fname = vhdr_fname[:-4] + 'vmrk'
     eeg_fname = vhdr_fname[:-4] + 'eeg'
 
-    if events == False:
+    if isinstance(events, np.ndarray):
+        pass
+    elif events == False:
         events = np.ndarray([0,3])
     elif events == True:
         events = mne.find_events(raw,verbose=False)
     else:
-        if not isintance(events, np.ndarray):
-            raise ValueError('events must be boolean or 3 x n_events darray.')
+        raise ValueError('events must be boolean or 3 x n_events darray.')
+
     # eliminate the stim channel
     raw = raw.copy().pick_types(eeg=True, eog=True, meg=True, misc=True, stim=False)
 
