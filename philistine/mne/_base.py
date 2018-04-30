@@ -66,16 +66,19 @@ def savgol_iaf(raw, picks=None,
 
     Returns
     -------
-    IafEst : instance of ``collections.namedtuple``  called IAFEstimate with
-         fields for the peak alpha frequency (PAF), alpha center of
-         gravity (CoG), and the bounds of the alpha band (as a tuple).
+    IafEst : instance of ``collections.namedtuple`` called IAFEstimate 
+
+         Named tuple with fields for the peak alpha frequency (PAF), 
+         alpha center of gravity (CoG), and the bounds of the alpha band 
+         (as a tuple).
 
     Notes
     -----
-        Based on method developed by
-        [Andrew Corcoran](https://zenodo.org/badge/latestdoi/80904585).
-        In addition to appropriate software citation (Zenodo DOI or
-        git commit), please cite:
+    Based on method developed by
+    `Andrew Corcoran <https://zenodo.org/badge/latestdoi/80904585>`_.
+    In addition to appropriate software citation (Zenodo DOI or
+    git commit), please cite:
+
         Corcoran, A. W., Alday, P. M., Schlesewsky, M., &
         Bornkessel-Schlesewsky, I. (2018). Toward a reliable, automated method
         of individual alpha frequency (IAF) quantification. Psychophysiology,
@@ -217,16 +220,19 @@ def attenuation_iaf(raws, picks=None,
 
     Returns
     -------
-    IafEst : instance of ``collections.namedtuple``  called IAFEstimate with
-         fields for the peak alpha frequency (PAF), alpha center of
-         gravity (CoG), and the bounds of the alpha band (as a tuple).
+    IafEst : instance of ``collections.namedtuple`` called IAFEstimate 
+
+         Named tuple with fields for the peak alpha frequency (PAF), 
+         alpha center of gravity (CoG), and the bounds of the alpha band 
+         (as a tuple).
 
     Notes
     -----
-        Based on method developed by
-        [Andrew Corcoran](https://zenodo.org/badge/latestdoi/80904585).
-        In addition to appropriate software citation (Zenodo DOI or
-        git commit), please cite:
+    Based on method developed by
+    `Andrew Corcoran <https://zenodo.org/badge/latestdoi/80904585>`_.
+    In addition to appropriate software citation (Zenodo DOI or
+    git commit), please cite:
+
         Corcoran, A. W., Alday, P. M., Schlesewsky, M., &
         Bornkessel-Schlesewsky, I. (2018). Toward a reliable, automated method
         of individual alpha frequency (IAF) quantification. Psychophysiology,
@@ -356,8 +362,7 @@ def attenuation_iaf(raws, picks=None,
 
 def abs_threshold(epochs, threshold,
                   eeg=True, eog=False, misc=False, stim=False):
-    '''Compute boolean mask for dropping epochs based on absolute
-        voltage threshold
+    '''Compute mask for dropping epochs based on absolute voltage threshold
 
     Parameters
     ----------

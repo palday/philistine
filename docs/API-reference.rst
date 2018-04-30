@@ -19,4 +19,11 @@ MNE-Python related functionality
     philistine.mne.retrieve
 
     philistine.mne.write_raw_brainvision
-   
+    
+General purpose utilities
+---------------------------
+
+.. autosummary::
+    :toctree: api
+    
+    philistine.invert_dict

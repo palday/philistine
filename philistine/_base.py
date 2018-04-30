@@ -10,19 +10,21 @@ def invert_dict(d):
     Parameters
     ----------
     d : dict-like
-    The dictionary to invert
+        The dictionary to invert
 
     Returns
     --------
     inv_d : dict()
-    The inverted dictionary.
+        The inverted dictionary.
 
     Notes
     ------
-    If the key-mapping is not one-to-one, then the dictionary is not unvertible and a ValueError is thrown.
+    If the key-mapping is not one-to-one, then the dictionary is not 
+    invertible and a ValueError is thrown.
     """
 
-    if len(set(d.keys())) != len(set(d.values())):
+    inv_d = {d[key]:key for key in d}
+    if len(d) != len(inv_d):
         raise ValueError('Key-value mapping is not one-to-one.')
 
-    return {d[key] for key in d}
+    return inv_d
