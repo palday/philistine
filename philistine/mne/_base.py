@@ -83,7 +83,7 @@ def savgol_iaf(raw, picks=None,
     """
     psd, freqs = mne.time_frequency.psd_welch(raw,picks=picks,
                                     n_fft=int(raw.info['sfreq'] / resolution),
-                                    fmin=1,fmax=30)
+                                    fmin=1.,fmax=30.)
     if ax is None:
         fig = plt.figure()
         ax = plt.gca()
