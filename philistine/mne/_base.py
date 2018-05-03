@@ -66,10 +66,10 @@ def savgol_iaf(raw, picks=None,
 
     Returns
     -------
-    IafEst : instance of ``collections.namedtuple`` called IAFEstimate 
+    IafEst : instance of ``collections.namedtuple`` called IAFEstimate
 
-         Named tuple with fields for the peak alpha frequency (PAF), 
-         alpha center of gravity (CoG), and the bounds of the alpha band 
+         Named tuple with fields for the peak alpha frequency (PAF),
+         alpha center of gravity (CoG), and the bounds of the alpha band
          (as a tuple).
 
     Notes
@@ -220,10 +220,10 @@ def attenuation_iaf(raws, picks=None,
 
     Returns
     -------
-    IafEst : instance of ``collections.namedtuple`` called IAFEstimate 
+    IafEst : instance of ``collections.namedtuple`` called IAFEstimate
 
-         Named tuple with fields for the peak alpha frequency (PAF), 
-         alpha center of gravity (CoG), and the bounds of the alpha band 
+         Named tuple with fields for the peak alpha frequency (PAF),
+         alpha center of gravity (CoG), and the bounds of the alpha band
          (as a tuple).
 
     Notes
@@ -251,7 +251,7 @@ def attenuation_iaf(raws, picks=None,
     def psd_est(r):
         return mne.time_frequency.psd_welch(r,picks=picks,
                                     n_fft=int(r.info['sfreq'] / resolution),
-                                    fmin=1,fmax=30)
+                                    fmin=1.,fmax=30.)
 
     psd, freqs = zip(*[psd_est(r) for r in raws])
     assert np.allclose(*freqs)
