@@ -83,6 +83,7 @@ def _write_vmrk_file(vmrk_fname, eeg_fname, events):
         print(r';Exported from MNE-Python using philistine {}'.format(__version__), file=fout)
         print(r'', file=fout)
         print(r'[Common Infos]', file=fout)
+        print(r'Codepage=UTF-8', file=fout)
         print(r'DataFile={}'.format(eeg_fname), file=fout)
         print(r'', file=fout)
         print(r'[Marker Infos]', file=fout)
@@ -120,6 +121,7 @@ def _write_vhdr_file(vhdr_fname, vmrk_fname, eeg_fname, raw,
         print(r';Exported from MNE-Python using philistine', file=fout)
         print(r'', file=fout)
         print(r'[Common Infos]', file=fout)
+        print(r'Codepage=UTF-8', file=fout)
         print(r'DataFile={}'.format(eeg_fname), file=fout)
         print(r'MarkerFile={}'.format(vmrk_fname), file=fout)
 
