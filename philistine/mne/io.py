@@ -118,7 +118,7 @@ def _write_vhdr_file(vhdr_fname, vmrk_fname, eeg_fname, raw,
 
     with open(vhdr_fname, 'w', encoding='utf-8') as fout:
         print(r'Brain Vision Data Exchange Header File Version 1.0', file=fout)
-        print(r';Exported from MNE-Python using philistine', file=fout)
+        print(r';Exported from MNE-Python using philistine {}'.format(__version__), file=fout)
         print(r'', file=fout)
         print(r'[Common Infos]', file=fout)
         print(r'Codepage=UTF-8', file=fout)
