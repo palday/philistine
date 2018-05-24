@@ -4,6 +4,8 @@
 
 from __future__ import print_function, division
 
+import os
+
 import mne
 import numpy as np
 import pandas as pd
@@ -84,7 +86,7 @@ def _write_vmrk_file(vmrk_fname, eeg_fname, events):
         print(r'', file=fout)
         print(r'[Common Infos]', file=fout)
         print(r'Codepage=UTF-8', file=fout)
-        print(r'DataFile={}'.format(eeg_fname), file=fout)
+        print(r'DataFile={}'.format(eeg_fname.split(os.sep)[-1]), file=fout)
         print(r'', file=fout)
         print(r'[Marker Infos]', file=fout)
         print(r'; Each entry: Mk<Marker number>=<Type>,<Description>,<Position in data points>,', file=fout)
@@ -122,8 +124,8 @@ def _write_vhdr_file(vhdr_fname, vmrk_fname, eeg_fname, raw,
         print(r'', file=fout)
         print(r'[Common Infos]', file=fout)
         print(r'Codepage=UTF-8', file=fout)
-        print(r'DataFile={}'.format(eeg_fname), file=fout)
-        print(r'MarkerFile={}'.format(vmrk_fname), file=fout)
+        print(r'DataFile={}'.format(eeg_fname.split(os.sep)[-1]), file=fout)
+        print(r'MarkerFile={}'.format(vmrk_fname.split(os.sep)[-1]), file=fout)
 
         if 'binary' in format.lower():
             print(r'DataFormat=BINARY', file=fout)
