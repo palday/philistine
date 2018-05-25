@@ -6,7 +6,10 @@ A Python package for Phillip's helper and utility functions, especially for EEG 
 Status
 --------
 
-(tests not yet implemented)
+.. |pipeline status| image:: https://gitlab.com/palday/philistine/badges/master/pipeline.svg
+   :target: https://gitlab.com/palday/philistine/commits/master
+.. |coverage report| image:: https://gitlab.com/palday/philistine/badges/master/coverage.svg
+   :target: https://gitlab.com/palday/philistine/commits/master
 
 Overview
 --------
