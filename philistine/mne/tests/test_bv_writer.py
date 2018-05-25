@@ -1,30 +1,30 @@
 # -*- coding: utf-8 -*-
 # Copyright (C) 2018 Phillip Alday <phillip.alday@mpi.nl>
 # License: BSD (3-clause)
-
 """BrainVision Writer tests."""
 
-from __future__ import print_function, division
-
-from philistine.mne.utils import _mktmpdir, _generate_raw
-from philistine.mne.io import write_raw_brainvision
+from __future__ import division, print_function
 
 import os
-import mne
 from shutil import rmtree
 
-from nose.tools import assert_equal, assert_raises, assert_true
-from numpy.testing import (assert_array_almost_equal, assert_array_equal,
-                           assert_allclose)
+import mne
+
+from nose.tools import assert_equal
+
+from numpy.testing import assert_allclose
+
+from philistine.mne.io import write_raw_brainvision
+from philistine.mne.utils import _generate_raw, _mktmpdir
 
 # TODO: events of all types (stim channel, extra events, no events,
 #       various methods of passing events)
 # TODO: filter the generated raw and test high and lowpass
 # TODO: non-integer sfreq, sfreq in powers of 2 (256,512,1024,2048)
 
-def test_bv_writer_events():
-    """Test that a write-read cycle produces identical Raws"""
 
+def test_bv_writer_events():
+    """Test that a write-read cycle produces identical Raws."""
     raw = _generate_raw()
     tmpdir = _mktmpdir()
 
@@ -37,8 +37,7 @@ def test_bv_writer_events():
 
 
 def test_bv_writer_oi_cycle():
-    """Test that a write-read cycle produces identical Raws"""
-
+    """Test that a write-read cycle produces identical Raws."""
     raw = _generate_raw()
     tmpdir = _mktmpdir()
 
@@ -52,10 +51,10 @@ def test_bv_writer_oi_cycle():
     assert_equal(raw.info['sfreq'], raw_written.info['sfreq'])
     # events
     # currently disabled as events aren't created ....
-    #assert_equal(mne.find_events(raw), mne.find_events(raw_written))
+    # assert_equal(mne.find_events(raw), mne.find_events(raw_written))
 
     # ditch the stim channel
-    raw_written = raw_written.copy().pick_types(eeg=True,stim=False)
+    raw_written = raw_written.copy().pick_types(eeg=True, stim=False)
 
     # data
     assert_allclose(raw._data, raw_written._data)
@@ -66,4 +65,3 @@ def test_bv_writer_oi_cycle():
     assert_equal(raw.info['highpass'], raw_written.info['highpass'])
 
     rmtree(tmpdir)
-

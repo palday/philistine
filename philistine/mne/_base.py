@@ -1,24 +1,29 @@
 # -*- coding: utf-8 -*-
 # Copyright (C) 2017-2018 Phillip Alday <phillip.alday@mpi.nl>
 # License: BSD (3-clause)
+"""MNE-based functionality not further categorized."""
 
-from __future__ import print_function, division
+from __future__ import division, print_function
 
-import mne
-import numpy as np
-import pandas as pd
-
-from scipy.signal import savgol_filter, argrelmin
-from scipy.ndimage.measurements import center_of_mass
-from scipy import stats
 from collections import namedtuple
 
 import matplotlib.pyplot as plt
 
-IafEst = namedtuple('IAFEstimate',
-                   ['PeakAlphaFrequency','CenterOfGravity','AlphaBand'])
+import mne
 
-def savgol_iaf(raw, picks=None,
+import numpy as np
+
+import pandas as pd
+
+from scipy import stats
+from scipy.ndimage.measurements import center_of_mass
+from scipy.signal import argrelmin, savgol_filter
+
+IafEst = namedtuple('IAFEstimate',
+                    ['PeakAlphaFrequency', 'CenterOfGravity', 'AlphaBand'])
+
+
+def savgol_iaf(raw, picks=None,  # noqa: C901
                fmin=None, fmax=None,
                resolution=0.25,
                average=True,
@@ -84,15 +89,16 @@ def savgol_iaf(raw, picks=None,
         of individual alpha frequency (IAF) quantification. Psychophysiology,
         e13064. doi:10.1111/psyp.13064
     """
-    psd, freqs = mne.time_frequency.psd_welch(raw,picks=picks,
-                                    n_fft=int(raw.info['sfreq'] / resolution),
-                                    fmin=1.,fmax=30.)
+    n_fft = int(raw.info['sfreq'] / resolution)
+    psd, freqs = mne.time_frequency.psd_welch(raw, picks=picks,
+                                              n_fft=n_fft, fmin=1.,
+                                              fmax=30.)
     if ax is None:
-        fig = plt.figure()
+        fig = plt.figure()  # noqa: F841
         ax = plt.gca()
 
     if average:
-        psd = np.mean(psd,axis=0)
+        psd = np.mean(psd, axis=0)
 
     if fmin is None or fmax is None:
         if fmin is None:
@@ -109,8 +115,8 @@ def savgol_iaf(raw, picks=None,
                                       freqs <= fmax_bound)
         freqs_search = freqs[alpha_search]
         psd_search = savgol_filter(psd[alpha_search],
-                             window_length = psd[alpha_search].shape[0],
-                             polyorder = 10)
+                                   window_length=psd[alpha_search].shape[0],
+                                   polyorder=10)
         # argrel min returns a tuple, so we flatten that with [0]
         # then we get the last element of the resulting array with [-1]
         # which is the minimum closest to the 'median' alpha of 10 Hz
@@ -119,8 +125,7 @@ def savgol_iaf(raw, picks=None,
                 left_min = argrelmin(psd_search[freqs_search < 10])[0][-1]
                 fmin = freqs_search[freqs_search < 10][left_min]
             except IndexError:
-                raise ValueError("Unable to automatically determine lower end"
-                    + " of alpha band.")
+                raise ValueError("Unable to automatically determine lower end  of alpha band.")   # noqa: 501
         if fmax is None:
             # here we want the first element of the array which is closest to
             # the 'median' alpha of 10 Hz
@@ -128,8 +133,7 @@ def savgol_iaf(raw, picks=None,
                 right_min = argrelmin(psd_search[freqs_search > 10])[0][0]
                 fmax = freqs_search[freqs_search > 10][right_min]
             except IndexError:
-                raise ValueError("Unable to automatically determine upper end"
-                    + " of alpha band.")
+                raise ValueError("Unable to automatically determine upper end of alpha band.")   # noqa: 501
     psd_smooth = savgol_filter(psd,
                                window_length=window_length,
                                polyorder=polyorder)
@@ -152,29 +156,30 @@ def savgol_iaf(raw, picks=None,
         plt_psd, = ax.plot(freqs, psd, label="Raw PSD")
         plt_smooth, = ax.plot(freqs, psd_smooth, label="Smoothed PSD")
         plt_pink, = ax.plot(freqs,
-                     np.exp(slope * np.log(freqs) + intercept),
-                     label='$1/f$ fit ($R^2={:0.2}$)'.format(r**2))
+                            np.exp(slope * np.log(freqs) + intercept),
+                            label='$1/f$ fit ($R^2={:0.2}$)'.format(r**2))
         try:
             plt_search, = ax.plot(freqs_search, psd_search,
-                                label='Alpha-band Search Parabola')
-            ax.legend(handles=[plt_psd,plt_smooth,plt_search,plt_pink])
+                                  label='Alpha-band Search Parabola')
+            ax.legend(handles=[plt_psd, plt_smooth, plt_search, plt_pink])
         except UnboundLocalError:
             # this happens when the user fully specified an alpha band
-            ax.legend(handles=[plt_psd,plt_smooth,plt_pink])
+            ax.legend(handles=[plt_psd, plt_smooth, plt_pink])
 
         ax.set_ylabel("PSD")
         ax.set_xlabel("Hz")
 
     return IafEst(paf, cog, (fmin, fmax))
 
-def attenuation_iaf(raws, picks=None,
-               fmin=None, fmax=None,
-               resolution=0.25,
-               average=True,
-               ax=None,
-               savgol = False,
-               window_length=11, polyorder=5,
-               flat_max_r=0.98):
+
+def attenuation_iaf(raws, picks=None,  # noqa: C901
+                    fmin=None, fmax=None,
+                    resolution=0.25,
+                    average=True,
+                    ax=None,
+                    savgol=False,
+                    window_length=11, polyorder=5,
+                    flat_max_r=0.98):
     """Estimate individual alpha frequency (IAF).
 
     Parameters
@@ -239,40 +244,32 @@ def attenuation_iaf(raws, picks=None,
         e13064. doi:10.1111/psyp.13064
 
     """
-
-    #     psd_eo, freqs_eo = psd_welch(eo,fmin=7,fmax=13,picks=picks,n_fft=500,n_overlap=100)
-    #     psd_ec, freqs_ec = psd_welch(ec,fmin=7,fmax=13,picks=picks,n_fft=500,n_overlap=100)
-    #     assert np.allclose(freqs_eo,freqs_ec)
-    #
-    #     psd_net = np.abs(psd_ec - psd_eo)
-    #     psd_net = np.mean(psd_net,axis=0)
-    #     iaf = freqs_ec[np.argmax(psd_net)]
-
+    # TODO: check value of savgol parameter
     def psd_est(r):
-        return mne.time_frequency.psd_welch(r,picks=picks,
-                                    n_fft=int(r.info['sfreq'] / resolution),
-                                    fmin=1.,fmax=30.)
+        n_fft = int(r.info['sfreq'] / resolution)
+        return mne.time_frequency.psd_welch(r, picks=picks, n_fft=n_fft,
+                                            fmin=1., fmax=30.)
 
     psd, freqs = zip(*[psd_est(r) for r in raws])
     assert np.allclose(*freqs)
 
     if savgol == 'each':
-        psd = [ savgol_filter(p,
-                              window_length=window_length,
-                              polyorder=polyorder) for p in psd ]
+        psd = [savgol_filter(p,
+                             window_length=window_length,
+                             polyorder=polyorder) for p in psd]
 
     att_psd = psd[1] - psd[0]
 
     if average:
-        att_psd = np.mean(att_psd,axis=0)
-        psd = [ np.mean(p,axis=0) for p in psd ]
+        att_psd = np.mean(att_psd, axis=0)
+        psd = [np.mean(p, axis=0) for p in psd]
 
     att_psd = np.abs(att_psd)
 
     att_freqs = freqs[0]
 
     if ax is None:
-        fig = plt.figure()
+        fig = plt.figure()  # noqa: F841
         ax = plt.gca()
 
     if fmin is None or fmax is None:
@@ -289,9 +286,13 @@ def attenuation_iaf(raws, picks=None,
         alpha_search = np.logical_and(att_freqs >= fmin_bound,
                                       att_freqs <= fmax_bound)
         freqs_search = att_freqs[alpha_search]
+        # set the window to the entire interval
+        # don't use the sname window_length because that's used as a
+        # parameter for the function as a whole
+        wlen = att_psd[alpha_search].shape[0]
         psd_search = savgol_filter(att_psd[alpha_search],
-                             window_length = att_psd[alpha_search].shape[0],
-                             polyorder = 10)
+                                   window_length=wlen,
+                                   polyorder=10)
         # argrel min returns a tuple, so we flatten that with [0]
         # then we get the last element of the resulting array with [-1]
         # which is the minimum closest to the 'median' alpha of 10 Hz
@@ -300,8 +301,7 @@ def attenuation_iaf(raws, picks=None,
                 left_min = argrelmin(psd_search[freqs_search < 10])[0][-1]
                 fmin = freqs_search[freqs_search < 10][left_min]
             except IndexError:
-                raise ValueError("Unable to automatically determine lower end"
-                    + " of alpha band.")
+                raise ValueError("Unable to automatically determine lower end of alpha band.") # noqa: 501
         if fmax is None:
             # here we want the first element of the array which is closest to
             # the 'median' alpha of 10 Hz
@@ -309,8 +309,7 @@ def attenuation_iaf(raws, picks=None,
                 right_min = argrelmin(psd_search[freqs_search > 10])[0][0]
                 fmax = freqs_search[freqs_search > 10][right_min]
             except IndexError:
-                raise ValueError("Unable to automatically determine upper end"
-                    + " of alpha band.")
+                raise ValueError("Unable to automatically determine upper end of alpha band.")  # noqa: 501
 
     if savgol == 'diff':
         att_psd = savgol_filter(att_psd,
@@ -333,23 +332,23 @@ def attenuation_iaf(raws, picks=None,
         cog = att_freqs[alpha_band][cog_idx]
 
     if ax:
+        sgnote = '(with SG-Smoothing)' if savgol == 'each' else ''
         plt_psd1, = ax.plot(freqs[0], psd[0],
-                   label="Raw PSD #1 {}".format(
-                        '(with SG-Smoothing)' if savgol == 'each' else ''))
+                            label="Raw PSD #1 {}".format(sgnote))
         plt_psd2, = ax.plot(freqs[1], psd[1],
-                   label="Raw PSD #2 {}".format(
-                        '(with SG-Smoothing)' if savgol == 'each' else ''))
+                            label="Raw PSD #2 {}".format(sgnote))
+
+        sgnote = '(with SG-Smoothing)' if savgol == 'diff' else ''
         plt_att_psd, = ax.plot(att_freqs, att_psd,
-                   label="Attenuated PSD {}".format(
-                        '(with SG-Smoothing)' if savgol == 'diff' else ''))
+                               label="Attenuated PSD {}".format(sgnote))
 #         plt_pink, = ax.plot(att_freqs,
 #                      np.exp(slope * np.log(att_freqs) + intercept),
 #                      label='$1/f$ fit ($R^2={:0.2}$)'.format(r**2))
-        ax.text(np.max(att_freqs)*.5, np.max(att_psd)*.67,
+        ax.text(np.max(att_freqs) * 0.5, np.max(att_psd) * 0.67,
                 'Raw PSD Pearson $r={:0.2}$'.format(r))
         try:
             plt_search, = ax.plot(freqs_search, psd_search,
-                                label='Alpha-band Search Parabola')
+                                  label='Alpha-band Search Parabola')
             ax.legend(handles=[plt_psd1, plt_psd2, plt_att_psd, plt_search])
         except UnboundLocalError:
             # this happens when the user fully specified an alpha band
@@ -360,9 +359,10 @@ def attenuation_iaf(raws, picks=None,
 
     return IafEst(paf, cog, (fmin, fmax))
 
+
 def abs_threshold(epochs, threshold,
                   eeg=True, eog=False, misc=False, stim=False):
-    '''Compute mask for dropping epochs based on absolute voltage threshold
+    """Compute mask for dropping epochs based on absolute voltage threshold.
 
     Parameters
     ----------
@@ -387,21 +387,20 @@ def abs_threshold(epochs, threshold,
 
     Notes
     -----
-
     More precise selection of channels can be performed by passing a
     'reduced' Epochs instance from the various ``picks`` methods.
-    '''
-
-    data = epochs.pick_types(eeg=eeg,misc=misc,stim=stim).get_data()
+    """
+    data = epochs.pick_types(eeg=eeg, misc=misc, stim=stim).get_data()
     # channels and times are last two dimension in MNE ndarrays,
     # and we collapse across them to get a (n_epochs,) shaped array
-    rej = np.any( np.abs(data) > threshold, axis=(-1,-2))
+    rej = np.any( np.abs(data) > threshold, axis=(-1, -2) )  # noqa: E201, E202
 
     return rej
 
+
 def retrieve(epochs, windows, items=None,
-             summary_fnc=dict(mean=np.mean),**kwargs):
-    '''Retrieve summarized epoch data for further statistical analysis
+             summary_fnc=dict(mean=np.mean), **kwargs):
+    """Retrieve summarized epoch data for further statistical analysis.
 
     Parameters
     ----------
@@ -428,19 +427,16 @@ def retrieve(epochs, windows, items=None,
     dat : instance of pandas.DataFrame
         Long-format data frame of summarized data
 
-    Notes
-    -----
-    '''
-
-    df = epochs.to_data_frame(index=['epoch','time'],**kwargs)
+    """
+    df = epochs.to_data_frame(index=['epoch', 'time'], **kwargs)
     chs = [c for c in df.columns if c not in ('condition')]
     # the order is important here!
     # otherwise the shortcut with items later won't  work
-    factors = ['epoch','condition']
+    factors = ['epoch', 'condition']
     sel = factors + chs
     df = df.reset_index()
 
-    id_vars = ['epoch','condition','win','wname']
+    id_vars = ['epoch', 'condition', 'win', 'wname']
     if items is not None:
         id_vars += ['item']
 
@@ -448,8 +444,8 @@ def retrieve(epochs, windows, items=None,
     for fnc_name, fnc in summary_fnc.items():
         d = []
         for w in windows:
-            temp = df[ df.time >= windows[w][0] ]
-            dfw = temp[ temp.time <= windows[w][1] ]
+            temp = df[ df.time >= windows[w][0] ]  # noqa: E201, E202
+            dfw = temp[ temp.time <= windows[w][1] ]   # noqa: E201, E202
             dfw_summary = dfw[sel].groupby(factors).apply(fnc)
 
             if items is not None:
@@ -461,13 +457,14 @@ def retrieve(epochs, windows, items=None,
         d = pd.concat(d)
         # get rid of epoch and condition if they're already columns
         # before we can move them from the index to columns
-        d.drop('epoch',axis=1,inplace=True,errors='ignore')
-        d.drop('condition',axis=1,inplace=True,errors='ignore')
+        d.drop('epoch', axis=1, inplace=True, errors='ignore')
+        d.drop('condition', axis=1, inplace=True, errors='ignore')
         d.reset_index(inplace=True)
-        d = pd.melt(d, id_vars=id_vars,
-                       value_vars = chs,
-                       var_name = "channel",
-                       value_name = fnc_name)
-        dat = pd.merge(dat,d,how='outer')
+        d = pd.melt(d,
+                    id_vars=id_vars,
+                    value_vars=chs,
+                    var_name="channel",
+                    value_name=fnc_name)
+        dat = pd.merge(dat, d, how='outer')
 
     return dat
