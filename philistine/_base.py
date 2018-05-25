@@ -24,7 +24,7 @@ def invert_dict(d):
     If the key-mapping is not one-to-one, then the dictionary is not
     invertible and a ValueError is thrown.
     """
-    inv_d = {(d[key], key) for key in d}
+    inv_d = dict((d[key], key) for key in d)
     if len(d) != len(inv_d):
         raise ValueError('Key-value mapping is not one-to-one.')
 

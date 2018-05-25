@@ -5,7 +5,15 @@
 
 from __future__ import division, print_function
 
-from collections import namedtuple
+# we have to noqa so that flake8 doesn't complain about having this up
+# top, which is absolutely necessary for being able to run headless
+import os  # noqa: I100, I201, E402
+import matplotlib as mpl  # noqa: I100, I201, E402
+if os.environ.get('DISPLAY', '') == '':  # noqa: I100, I201, E402
+    print('no display found. Using non-interactive Agg backend')  # noqa: I100, I201, E402, E501
+    mpl.use('Agg')  # noqa: I100, I201, E402
+
+from collections import namedtuple  # noqa: I100
 
 import matplotlib.pyplot as plt
 

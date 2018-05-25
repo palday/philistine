@@ -12,7 +12,8 @@ import mne
 
 from nose.tools import assert_equal
 
-from numpy.testing import assert_allclose
+import numpy as np
+from numpy.testing import assert_allclose, assert_array_equal
 
 from philistine.mne.io import write_raw_brainvision
 from philistine.mne.utils import _generate_raw, _mktmpdir
@@ -24,7 +25,7 @@ from philistine.mne.utils import _generate_raw, _mktmpdir
 
 
 def test_bv_writer_events():
-    """Test that a write-read cycle produces identical Raws."""
+    """Test that all event options work without throwing an error."""
     raw = _generate_raw()
     tmpdir = _mktmpdir()
 
@@ -32,6 +33,7 @@ def test_bv_writer_events():
 
     write_raw_brainvision(raw, fname, events=True)
     write_raw_brainvision(raw, fname, events=False)
+    write_raw_brainvision(raw, fname, events=np.array([[10, 0, 31]]))
 
     rmtree(tmpdir)
 
@@ -39,6 +41,7 @@ def test_bv_writer_events():
 def test_bv_writer_oi_cycle():
     """Test that a write-read cycle produces identical Raws."""
     raw = _generate_raw()
+    raw.add_events(np.array([[1, 0, 82], [10, 0, 56]]))
     tmpdir = _mktmpdir()
 
     fname = os.path.join(tmpdir, "philistine.vhdr")
@@ -50,10 +53,10 @@ def test_bv_writer_oi_cycle():
     # sfreq
     assert_equal(raw.info['sfreq'], raw_written.info['sfreq'])
     # events
-    # currently disabled as events aren't created ....
-    # assert_equal(mne.find_events(raw), mne.find_events(raw_written))
+    assert_array_equal(mne.find_events(raw), mne.find_events(raw_written))
 
     # ditch the stim channel
+    raw = raw.copy().pick_types(eeg=True, stim=False)
     raw_written = raw_written.copy().pick_types(eeg=True, stim=False)
 
     # data

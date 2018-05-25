@@ -3,6 +3,7 @@
 # License: BSD (3-clause)
 """Utilities for (testing) MNE-based functionality."""
 
+import warnings
 from tempfile import mkdtemp
 
 import mne
@@ -52,7 +53,7 @@ def _generate_raw(n_chan=16,
     montage = None
 
     if ch_names is None:
-        ch_names = n_chan
+        ch_names = [str(i) for i in range(n_chan)]
     elif isinstance(ch_names, str):
         montage = mne.channels.read_montage(ch_names)
         ch_names = np.random.choice(montage.ch_names, n_chan)
@@ -73,8 +74,17 @@ def _generate_raw(n_chan=16,
     data *= 10e-6
     # Gaussian noise
     data += np.random.normal(n_chan, times.shape[0])
+
+    # add in stim channel
+    data = np.vstack([data, np.zeros(shape=times.shape)])
+    ch_names = ch_names + ["STI 014"]
+
     info = mne.create_info(ch_names, sfreq, ch_types="eeg", montage=montage)
 
     raw = mne.io.RawArray(data, info)
+    # capture runtime warning about unit change
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        raw.set_channel_types({"STI 014": "stim"})
 
     return raw
