@@ -1,6 +1,6 @@
-#! /usr/bin/env python
-#
+# -*- coding: utf-8 -*-
 # Copyright (C) 2018 Phillip Alday <phillip.alday@mpi.nl>
+# License: BSD (3-clause)
 
 from __future__ import print_function, division
 
@@ -19,7 +19,7 @@ def invert_dict(d):
 
     Notes
     ------
-    If the key-mapping is not one-to-one, then the dictionary is not 
+    If the key-mapping is not one-to-one, then the dictionary is not
     invertible and a ValueError is thrown.
     """
 
