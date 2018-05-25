@@ -66,7 +66,11 @@ def write_raw_brainvision(raw, vhdr_fname, events=True):
     elif events == False:
         events = np.ndarray([0,3])
     elif events == True:
-        events = mne.find_events(raw,verbose=False)
+        # if there are no events, then don't fail
+        try:
+            events = mne.find_events(raw,verbose=False)
+        except ValueError:
+            events = np.ndarray([0,3])
     else:
         raise ValueError('events must be boolean or 3 x n_events ndarray.')
 
@@ -96,6 +100,9 @@ def _write_vmrk_file(vmrk_fname, eeg_fname, events):
         print(r'; Fields are delimited by commas, some fields might be omitted (empty).', file=fout)
         print(r'; Commas in type or description text are coded as "\1".', file=fout)
         print(r'Mk1=New Segment,,1,1,0,0', file=fout)
+
+        if events.shape[0] == 0:
+            return
 
         twidth = int(np.ceil(np.log10(np.max(events[:,2]))))
         tformat = 'S{:>' + str(twidth) + '}'

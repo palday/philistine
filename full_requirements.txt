@@ -3,4 +3,4 @@ matplotlib
 scipy
 pandas
 mne
-
+nose
