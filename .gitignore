@@ -10,3 +10,10 @@
 /*.egg
 README.html
 *~
+
+# output form various dev tools
+_build/
+.tox
+.pytest_cache/
+.coverage*
+
