@@ -23,6 +23,7 @@ before_script:
   - pip install virtualenv
   - virtualenv venv
   - source venv/bin/activate
+  - pip install -r full_requirements.txt
 
 test:
   script:
