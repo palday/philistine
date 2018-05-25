@@ -33,30 +33,34 @@ after_script:
   - pip install codecov
   - codecov --token=0776fc46-cbe0-444f-9a8c-c887c34d48fb
 
-#python2:
-  #image: python:2.7
-  #stage: test
-  #script: tox -e py27
+python2:
+  image: python:2.7
+  stage: test
+  script: tox -e py27
 
-#python34:
-  #image: python:3.4
-  #stage: test
-  #script: tox -e py34
+python34:
+  image: python:3.4
+  stage: test
+  script: tox -e py34
 
 python35:
   image: python:3.5
   stage: test
   script: tox -e py35
 
-#python36:
-  #image: python:3.6
-  #stage: test
-  #script: tox -e py36
+python36:
+  image: python:3.6
+  stage: test
+  script: tox -e py36
 
-#python37:
-  #image: python:3.7-rc
-  #stage: test
-  #script: tox -e py37
+python37:
+  image: python:3.7-rc
+  stage: test
+  script: tox -e py37
+
+readme:
+  stage: test
+  script: tox -e readme
 
 docs:
   stage: test
