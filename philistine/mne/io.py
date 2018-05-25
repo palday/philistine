@@ -5,6 +5,7 @@
 
 from __future__ import division, print_function
 
+import codecs
 import os
 
 import mne
@@ -88,7 +89,7 @@ def write_raw_brainvision(raw, vhdr_fname, events=True):
 
 def _write_vmrk_file(vmrk_fname, eeg_fname, events):
     """Write BrainvVision marker file."""
-    with open(vmrk_fname, 'w', encoding='utf-8') as fout:
+    with codecs.open(vmrk_fname, 'w', encoding='utf-8') as fout:
         print(r'Brain Vision Data Exchange Marker File, Version 1.0', file=fout)  # noqa: E501
         print(r';Exported from MNE-Python using philistine {}'.format(__version__), file=fout)  # noqa: E501
         print(r'', file=fout)
@@ -131,7 +132,7 @@ def _write_vhdr_file(vhdr_fname, vmrk_fname, eeg_fname, raw,
                   ', '.join(supported_formats))
         raise ValueError(errmsg)
 
-    with open(vhdr_fname, 'w', encoding='utf-8') as fout:
+    with codecs.open(vhdr_fname, 'w', encoding='utf-8') as fout:
         print(r'Brain Vision Data Exchange Header File Version 1.0', file=fout)  # noqa: E501
         print(r';Exported from MNE-Python using philistine {}'.format(__version__), file=fout)  # noqa: E501
         print(r'', file=fout)
