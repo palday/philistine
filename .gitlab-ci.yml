@@ -22,6 +22,7 @@ cache:
     - venv/
 
 before_script:
+  - export MPLBACKEND=Agg
   - python -V               # Print out python version for debugging
   - pip install virtualenv
   - virtualenv venv
