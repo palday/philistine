@@ -125,6 +125,7 @@ def _write_vhdr_file(vhdr_fname, vmrk_fname, eeg_fname, raw,
         errmsg = ('Orientation {} not supported.'.format(orientation) +
                   'Currently supported orientations are: ' +
                   ', '.join(supported_orients))
+        raise ValueError(errmsg)
 
     if fmt not in supported_formats:
         errmsg = ('Data format {} not supported.'.format(format) +
@@ -183,6 +184,7 @@ def _write_bveeg_file(eeg_fname, raw, orientation='multiplexed',
         errmsg = ('Orientation {} not supported.'.format(orientation) +
                   'Currently supported orientations are: ' +
                   ', '.join(supported_orients))
+        raise ValueError(errmsg)
 
     if fmt not in supported_formats:
         errmsg = ('Data format {} not supported.'.format(format) +

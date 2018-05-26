@@ -10,11 +10,13 @@ from shutil import rmtree
 
 import mne
 
-from nose.tools import assert_equal
+from nose.tools import assert_equal, assert_raises
 
 import numpy as np
 from numpy.testing import assert_allclose, assert_array_equal
 
+from philistine.mne.io import _write_bveeg_file
+from philistine.mne.io import _write_vhdr_file
 from philistine.mne.io import write_raw_brainvision
 from philistine.mne.utils import _generate_raw, _mktmpdir
 
@@ -31,9 +33,36 @@ def test_bv_writer_events():
 
     fname = os.path.join(tmpdir, "philistine.vhdr")
 
+    assert_raises(ValueError, write_raw_brainvision, raw, fname, events=[])
+
     write_raw_brainvision(raw, fname, events=True)
     write_raw_brainvision(raw, fname, events=False)
     write_raw_brainvision(raw, fname, events=np.array([[10, 0, 31]]))
+    write_raw_brainvision(raw.pick_types(eeg=True, stim=False), fname,
+                          events=True)
+
+    rmtree(tmpdir)
+
+
+def test_bv_bad_format():
+    """Test that bad formats cause an error."""
+    raw = _generate_raw()
+    tmpdir = _mktmpdir()
+
+    vhdr_fname = os.path.join(tmpdir, "philistine.vhdr")
+    vmrk_fname = os.path.join(tmpdir, "philistine.vmrk")
+    eeg_fname = os.path.join(tmpdir, "philistine.eeg")
+    # events = np.array([[10, 0, 31]])
+
+    assert_raises(ValueError, _write_vhdr_file, vhdr_fname, vmrk_fname,
+                  eeg_fname, raw, orientation='bad')
+    assert_raises(ValueError, _write_vhdr_file, vhdr_fname, vmrk_fname,
+                  eeg_fname, raw, format='bad')
+
+    assert_raises(ValueError, _write_bveeg_file, eeg_fname, raw,
+                  orientation='bad')
+    assert_raises(ValueError, _write_bveeg_file, eeg_fname, raw,
+                  format='bad')
 
     rmtree(tmpdir)
 

@@ -157,8 +157,13 @@ def savgol_iaf(raw, picks=None,  # noqa: C901
         paf = freqs[alpha_band][paf_idx]
 
         cog_idx = center_of_mass(psd_smooth[alpha_band])
-        cog_idx = int(np.round(cog_idx[0]))
-        cog = freqs[alpha_band][cog_idx]
+        try:
+            cog_idx = int(np.round(cog_idx[0]))
+            cog = freqs[alpha_band][cog_idx]
+        except ValueError:
+            cog = None
+            # set PAF to None as well, because this is a pathological case
+            paf = None
 
     if ax:
         plt_psd, = ax.plot(freqs, psd, label="Raw PSD")
@@ -229,7 +234,8 @@ def attenuation_iaf(raws, picks=None,  # noqa: C901
         Maximum (Pearson) correlation allowed when comparing the raw PSD
         distributions to each other in the range 1 to 30 Hz.
         If this threshold is exceeded, then IAF is assumed unclear and
-        None is returned for both PAF and CoG.
+        None is returned for both PAF and CoG. Note that the sign of the
+        coefficient is ignored.
 
     Returns
     -------
@@ -328,7 +334,7 @@ def attenuation_iaf(raws, picks=None,  # noqa: C901
 
     r, p = stats.pearsonr(psd[0], psd[1])
 
-    if r > flat_max_r:
+    if np.abs(r) > np.abs(flat_max_r):
         paf = None
         cog = None
     else:
