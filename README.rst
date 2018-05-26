@@ -8,9 +8,9 @@ Status
 
 |pipeline status| |coverage report|
 
-.. |pipeline status| image:: https://gitlab.com/palday/philistine/badges/master/pipeline.svg
+.. |pipeline status| image:: https://gitlab.com/palday/philistine/badges/master/pipeline.svg?job=python35
    :target: https://gitlab.com/palday/philistine/commits/master
-.. |coverage report|  image:: https://gitlab.com/palday/philistine/badges/master/coverage.svg
+.. |coverage report|  image:: https://gitlab.com/palday/philistine/badges/master/coverage.svg?job=python35
    :target: https://gitlab.com/palday/philistine/commits/master
 
 Overview
