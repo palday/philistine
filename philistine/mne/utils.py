@@ -56,7 +56,7 @@ def _generate_raw(n_chan=16,
         ch_names = [str(i) for i in range(n_chan)]
     elif isinstance(ch_names, str):
         montage = mne.channels.read_montage(ch_names)
-        ch_names = np.random.choice(montage.ch_names, n_chan)
+        ch_names = list(np.random.choice(montage.ch_names, n_chan))
 
     # sine wave with a random phase offset by channel and Gaussian noise
     frequency = iaf
