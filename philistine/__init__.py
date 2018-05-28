@@ -3,7 +3,7 @@
 # License: BSD (3-clause)
 """Philistine: a collection of Phillip's utility functions"""
 
-__version__ = '0.1'
+__version__ = '0.2+dev'
 
 from . import mne
 from ._base import (invert_dict, )
