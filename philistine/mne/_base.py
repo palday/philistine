@@ -100,7 +100,7 @@ def savgol_iaf(raw, picks=None,  # noqa: C901
     if average:
         psd = np.mean(psd, axis=0)
     else:
-        raise NotImplementedError("By-channel IAF estimates not currently implemented.")
+        raise NotImplementedError("By-channel IAF estimates not currently implemented.")  # noqa: E501
 
     if fmin is None or fmax is None:
         if fmin is None:
@@ -274,7 +274,7 @@ def attenuation_iaf(raws, picks=None,  # noqa: C901
         att_psd = np.mean(att_psd, axis=0)
         psd = [np.mean(p, axis=0) for p in psd]
     else:
-        raise NotImplementedError("By-channel IAF estimates not Currently implemented.")
+        raise NotImplementedError("By-channel IAF estimates not Currently implemented.")  # noqa: E501
 
     att_psd = np.abs(att_psd)
 
@@ -441,13 +441,14 @@ def retrieve(epochs, windows, items=None,
 
     """
     # maybe add an event_id argument to convert events to conditions?
-    # this would require an invertible event_id dictionary, but that's not a horribel requirement
+    # this would require an invertible event_id dictionary, but that's not a
+    # horrible requirement
     if items is not None:
         try:
             if items.shape != (len(epochs),):
                 raise ValueError("items argument must have shape (n_epochs,)")
         except AttributeError:
-            raise ValueError("items argument must be None or ndarray with shape (n_epochs,)")
+            raise ValueError("items argument must be None or ndarray with shape (n_epochs,)")  # noqa: E501
 
     df = epochs.to_data_frame(index=['epoch', 'time'], **kwargs)
     chs = [c for c in df.columns if c not in ('condition')]

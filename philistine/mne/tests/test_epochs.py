@@ -30,7 +30,6 @@ def test_retrieve():
 
     windows = dict(onset=(-50, 50))
 
-
     # without items
     df1 = retrieve(epochs, windows)
     df2 = pd.DataFrame({'channel': {0: '0', 1: 'STI 014', 2: '0', 3: 'STI 014'},  # noqa: E501
@@ -61,7 +60,6 @@ def test_retrieve():
 
     assert_true(np.all(df1.eq(df2)))
 
-
     # incorrect shape
     items = np.array(['A', 'B', 'too many'])
     assert_raises(ValueError, retrieve, epochs, windows, items=items)
@@ -69,6 +67,7 @@ def test_retrieve():
     # incorrect type
     items = 'wrong'
     assert_raises(ValueError, retrieve, epochs, windows, items=items)
+
 
 def test_abs_treshold():
     """Test absolute-valued based thresholding."""

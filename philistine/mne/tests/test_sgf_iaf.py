@@ -88,15 +88,15 @@ def test_attenuation_sgf_iaf():
     assert_sequence_equal(iaf, (None, None, (7., 13.)))
 
     # not yet implemented functionality
-    assert_raises(NotImplementedError, attenuation_iaf, [raw, raw2], average=False)
+    assert_raises(NotImplementedError, attenuation_iaf, [raw, raw2],
+                  average=False)
 
 
 def test_basic_sgf_iaf_graphics():
     """Test plotting functionality in  basic Savitzky-Golay filtered IAF."""
-
     raw = _generate_raw(iaf=11.25)
 
-    fig = plt.figure()  # noaq: F841
+    fig = plt.figure()  # noqa: F841
     ax = plt.gca()
 
     iaf = savgol_iaf(raw, fmin=7., fmax=13., resolution=1., polyorder=4,
@@ -109,18 +109,17 @@ def test_basic_sgf_iaf_graphics():
 
 
 def test_attenuation_sgf_iaf_graphics():
-    """Test plotting functionality in  attenuation Savitzky-Golay filtered IAF."""
-
+    """Test plotting functionality in  attenuation SG filtered IAF."""
     raw = _generate_raw(iaf=11.25)
     raw2 = _generate_raw(iaf=35)
 
-    fig = plt.figure()  # noaq: F841
+    fig = plt.figure()  # noqa: F841
     ax = plt.gca()
 
-    iaf = attenuation_iaf([raw, raw2], fmin=7., fmax=13., resolution=1., polyorder=4,
-                     window_length=5, ax=ax)
+    iaf = attenuation_iaf([raw, raw2], fmin=7., fmax=13., resolution=1.,
+                          polyorder=4, window_length=5, ax=ax)
     assert_sequence_equal(iaf, (11., 11., (7., 13.)))
 
-    iaf = attenuation_iaf([raw, raw2], fmin=7., fmax=13., resolution=1., polyorder=4,
-                     window_length=5, ax=False)
+    iaf = attenuation_iaf([raw, raw2], fmin=7., fmax=13., resolution=1.,
+                          polyorder=4, window_length=5, ax=False)
     assert_sequence_equal(iaf, (11., 11., (7., 13.)))

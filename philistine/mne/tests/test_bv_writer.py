@@ -101,9 +101,9 @@ def test_bv_writer_oi_cycle():
 
     rmtree(tmpdir)
 
+
 def test_protected_wip():
     """Test protected WIP/TODO members."""
-
     assert_raises(NotImplementedError, _anonymize_bv, None)
     assert_raises(NotImplementedError, _extract_bv_segments, None)
     assert_raises(NotImplementedError, _rename_bv, None)
