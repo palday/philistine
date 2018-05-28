@@ -5,6 +5,8 @@
 
 from __future__ import division, print_function
 
+import matplotlib.pyplot as plt
+
 from nose.tools import assert_raises, assert_sequence_equal
 
 from philistine.mne import attenuation_iaf, savgol_iaf
@@ -42,11 +44,15 @@ def test_basic_sgf_iaf():
     # should fail on a flat line ...
     assert_raises(ValueError, savgol_iaf, raw_flat, resolution=1.)
 
+    # not yet implemented functionality
+    assert_raises(NotImplementedError, savgol_iaf, raw_flat, average=False)
+
 
 def test_attenuation_sgf_iaf():
     """Test attenuation Savitzky-Golay filtered IAF functionality."""
     raw = _generate_raw(iaf=11.25)
     raw2 = _generate_raw(iaf=35)
+
     # automatically determined bounds
     iaf = attenuation_iaf([raw, raw2])
     assert_sequence_equal(iaf, (11.25, 11.25, (9.25, 13.)))
@@ -71,9 +77,50 @@ def test_attenuation_sgf_iaf():
                           polyorder=4, window_length=5, savgol='diff')
     assert_sequence_equal(iaf, (11., 11., (7., 13.)))
 
+    assert_raises(ValueError, attenuation_iaf, [raw, raw2], savgol=None)
+    assert_raises(ValueError, attenuation_iaf, [raw, raw2], savgol='jibberish')
+
     # flat line
     iaf = attenuation_iaf([raw, raw], fmin=7., fmax=13.)
     assert_sequence_equal(iaf, (None, None, (7., 13.)))
 
     iaf = attenuation_iaf([raw, raw2], fmin=7., fmax=13., flat_max_r=0)
     assert_sequence_equal(iaf, (None, None, (7., 13.)))
+
+    # not yet implemented functionality
+    assert_raises(NotImplementedError, attenuation_iaf, [raw, raw2], average=False)
+
+
+def test_basic_sgf_iaf_graphics():
+    """Test plotting functionality in  basic Savitzky-Golay filtered IAF."""
+
+    raw = _generate_raw(iaf=11.25)
+
+    fig = plt.figure()  # noaq: F841
+    ax = plt.gca()
+
+    iaf = savgol_iaf(raw, fmin=7., fmax=13., resolution=1., polyorder=4,
+                     window_length=5, ax=ax)
+    assert_sequence_equal(iaf, (11., 11., (7., 13.)))
+
+    iaf = savgol_iaf(raw, fmin=7., fmax=13., resolution=1., polyorder=4,
+                     window_length=5, ax=False)
+    assert_sequence_equal(iaf, (11., 11., (7., 13.)))
+
+
+def test_attenuation_sgf_iaf_graphics():
+    """Test plotting functionality in  attenuation Savitzky-Golay filtered IAF."""
+
+    raw = _generate_raw(iaf=11.25)
+    raw2 = _generate_raw(iaf=35)
+
+    fig = plt.figure()  # noaq: F841
+    ax = plt.gca()
+
+    iaf = attenuation_iaf([raw, raw2], fmin=7., fmax=13., resolution=1., polyorder=4,
+                     window_length=5, ax=ax)
+    assert_sequence_equal(iaf, (11., 11., (7., 13.)))
+
+    iaf = attenuation_iaf([raw, raw2], fmin=7., fmax=13., resolution=1., polyorder=4,
+                     window_length=5, ax=False)
+    assert_sequence_equal(iaf, (11., 11., (7., 13.)))

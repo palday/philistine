@@ -99,6 +99,8 @@ def savgol_iaf(raw, picks=None,  # noqa: C901
 
     if average:
         psd = np.mean(psd, axis=0)
+    else:
+        raise NotImplementedError("By-channel IAF estimates not currently implemented.")
 
     if fmin is None or fmax is None:
         if fmin is None:
@@ -250,7 +252,9 @@ def attenuation_iaf(raws, picks=None,  # noqa: C901
         e13064. doi:10.1111/psyp.13064
 
     """
-    # TODO: check value of savgol parameter
+    if savgol not in set([False, 'each', 'diff']):
+        raise ValueError("savgol must be one of False, 'each', 'diff'")
+
     def psd_est(r):
         n_fft = int(r.info['sfreq'] / resolution)
         return mne.time_frequency.psd_welch(r, picks=picks, n_fft=n_fft,
@@ -269,6 +273,8 @@ def attenuation_iaf(raws, picks=None,  # noqa: C901
     if average:
         att_psd = np.mean(att_psd, axis=0)
         psd = [np.mean(p, axis=0) for p in psd]
+    else:
+        raise NotImplementedError("By-channel IAF estimates not Currently implemented.")
 
     att_psd = np.abs(att_psd)
 
@@ -434,6 +440,15 @@ def retrieve(epochs, windows, items=None,
         Long-format data frame of summarized data
 
     """
+    # maybe add an event_id argument to convert events to conditions?
+    # this would require an invertible event_id dictionary, but that's not a horribel requirement
+    if items is not None:
+        try:
+            if items.shape != (len(epochs),):
+                raise ValueError("items argument must have shape (n_epochs,)")
+        except AttributeError:
+            raise ValueError("items argument must be None or ndarray with shape (n_epochs,)")
+
     df = epochs.to_data_frame(index=['epoch', 'time'], **kwargs)
     chs = [c for c in df.columns if c not in ('condition')]
     # the order is important here!
