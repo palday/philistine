@@ -18,6 +18,7 @@ from numpy.testing import assert_allclose, assert_array_equal
 from philistine.mne.io import _anonymize_bv, _extract_bv_segments, _rename_bv
 from philistine.mne.io import _write_bveeg_file
 from philistine.mne.io import _write_vhdr_file
+from philistine.mne.io import supported_formats, supported_orients
 from philistine.mne.io import write_raw_brainvision
 from philistine.mne.utils import _generate_raw, _mktmpdir
 
@@ -53,16 +54,17 @@ def test_bv_bad_format():
     vhdr_fname = os.path.join(tmpdir, "philistine.vhdr")
     vmrk_fname = os.path.join(tmpdir, "philistine.vmrk")
     eeg_fname = os.path.join(tmpdir, "philistine.eeg")
+    resolution = 0.1
     # events = np.array([[10, 0, 31]])
 
     assert_raises(ValueError, _write_vhdr_file, vhdr_fname, vmrk_fname,
-                  eeg_fname, raw, orientation='bad')
+                  resolution, eeg_fname, raw, orientation='bad')
     assert_raises(ValueError, _write_vhdr_file, vhdr_fname, vmrk_fname,
-                  eeg_fname, raw, format='bad')
+                  resolution, eeg_fname, raw, format='bad')
 
-    assert_raises(ValueError, _write_bveeg_file, eeg_fname, raw,
+    assert_raises(ValueError, _write_bveeg_file, eeg_fname, raw, resolution,
                   orientation='bad')
-    assert_raises(ValueError, _write_bveeg_file, eeg_fname, raw,
+    assert_raises(ValueError, _write_bveeg_file, eeg_fname, raw, resolution,
                   format='bad')
 
     rmtree(tmpdir)
@@ -100,6 +102,41 @@ def test_bv_writer_oi_cycle():
         assert_equal(raw.info['highpass'], raw_written.info['highpass'])
 
     rmtree(tmpdir)
+
+
+def test_bv_formats():
+    """Test that all supported formats produce identical Raws."""
+    tmpdir = _mktmpdir()
+
+    fname = os.path.join(tmpdir, "philistine.vhdr")
+    raw = _generate_raw(duration=1)
+    raw.add_events(np.array([[1, 0, 82], [10, 0, 56]]))
+
+    for fmt in supported_formats:
+        for orient in supported_orients:
+            write_raw_brainvision(raw, fname, format=fmt, orientation=orient)
+
+            raw_written = mne.io.read_raw_brainvision(fname, preload=True)
+
+            # sfreq
+            assert_equal(raw.info['sfreq'], raw_written.info['sfreq'])
+            # events
+            assert_array_equal(mne.find_events(raw),
+                               mne.find_events(raw_written))
+
+            # ditch the stim channel
+            raw_no_stim = raw.copy().pick_types(eeg=True, stim=False)
+            raw_written = raw_written.copy().pick_types(eeg=True, stim=False)
+
+            # data
+            assert_allclose(raw_no_stim._data, raw_written._data)
+            # channels
+            assert_equal(raw_no_stim.ch_names, raw_written.ch_names)
+            # filters
+            assert_equal(raw_no_stim.info['lowpass'],
+                         raw_written.info['lowpass'])
+            assert_equal(raw_no_stim.info['highpass'],
+                         raw_written.info['highpass'])
 
 
 def test_protected_wip():
