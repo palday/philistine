@@ -7,6 +7,7 @@
    :hidden:
 
    API-reference.rst
+   whats_new.rst
 
 .. include:: ../README.rst
 
