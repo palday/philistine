@@ -6,12 +6,18 @@ A Python package for Phillip's helper and utility functions, especially for EEG 
 Status
 --------
 
-|pipeline status| |coverage report|
+|pipeline status| |coverage report| |documentation status| |license| |pypi|
 
-.. |pipeline status| image:: https://gitlab.com/palday/philistine/badges/master/pipeline.svg?job=python35
+.. |pipeline status| image:: https://gitlab.com/palday/philistine/badges/master/pipeline.svg
    :target: https://gitlab.com/palday/philistine/commits/master
-.. |coverage report|  image:: https://gitlab.com/palday/philistine/badges/master/coverage.svg?job=python35
+.. |coverage report|  image:: https://gitlab.com/palday/philistine/badges/master/coverage.svg
    :target: https://gitlab.com/palday/philistine/commits/master
+.. |documentation status| image:: https://readthedocs.org/projects/philistine/badge/?version=latest
+    :target: https://philistine.readthedocs.io/en/latest/?badge=latest
+.. |license| image:: https://img.shields.io/badge/License-BSD%203--Clause-blue.svg
+    :target: https://opensource.org/licenses/BSD-3-Clause
+.. |pypi| image:: https://img.shields.io/pypi/v/philistine.svg
+   :target: https://pypi.org/project/philistine/
 
 Overview
 --------
