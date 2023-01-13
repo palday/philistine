@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2018 Phillip Alday <phillip.alday@mpi.nl>
+# Copyright (C) 2018 Phillip Alday <me@phillipalday.com>
 # License: BSD (3-clause)
 """Utilities for (testing) MNE-based functionality."""
 
@@ -55,7 +55,7 @@ def _generate_raw(n_chan=16,
     if ch_names is None:
         ch_names = [str(i) for i in range(n_chan)]
     elif isinstance(ch_names, str):
-        montage = mne.channels.read_montage(ch_names)
+        montage = mne.channels.make_standard_montage(ch_names)
         ch_names = list(np.random.choice(montage.ch_names, n_chan))
 
     # sine wave with a random phase offset by channel and Gaussian noise
@@ -79,12 +79,13 @@ def _generate_raw(n_chan=16,
     data = np.vstack([data, np.zeros(shape=times.shape)])
     ch_names = ch_names + ["STI 014"]
 
-    info = mne.create_info(ch_names, sfreq, ch_types="eeg", montage=montage)
+    info = mne.create_info(ch_names, sfreq, ch_types="eeg")
 
     raw = mne.io.RawArray(data, info)
     # capture runtime warning about unit change
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         raw.set_channel_types({"STI 014": "stim"})
+    raw.set_montage(montage)
 
     return raw

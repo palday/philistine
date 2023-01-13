@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2018 Phillip Alday <phillip.alday@mpi.nl>
+# Copyright (C) 2018, 2023 Phillip Alday <me@phillipalday.com>
 # License: BSD (3-clause)
 """Epoch manipulation tests."""
-
-from __future__ import division, print_function
 
 from nose.tools import assert_dict_equal, assert_raises
 

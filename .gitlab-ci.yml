@@ -27,37 +27,22 @@ before_script:
   - pip install virtualenv
   - virtualenv venv
   - source venv/bin/activate
-  - pip install -r full_requirements.txt
+  - pip install -r requirements.txt
   - pip install tox flake8
 
 after_script:
   - pip install codecov
   - codecov --token=0776fc46-cbe0-444f-9a8c-c887c34d48fb
 
-python2:
-  image: python:2.7
+python37:
+  image: python:3.7
   stage: test
-  script: tox -e py27
+  script: tox -e py37
 
-#python34:
-#  image: python:3.4
-#  stage: test
-#  script: tox -e py34
-
-python35:
-  image: python:3.5
+python38:
+  image: python:3.8
   stage: test
-  script: tox -e py35
-
-python36:
-  image: python:3.6
-  stage: test
-  script: tox -e py36
-
-#python37:
-#  image: python:3.7-rc
-#  stage: test
-#  script: tox -e py37
+  script: tox -e py38
 
 readme:
   stage: test
@@ -97,4 +82,3 @@ linters:
 #    - public
 #  only:
 #  - master
-

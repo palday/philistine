@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2018 Phillip Alday <phillip.alday@mpi.nl>
+# Copyright (C) 2018 Phillip Alday <me@phillipalday.com>
 # License: BSD (3-clause)
 """Internal utility tests."""
 
-from __future__ import division, print_function
-
-from mne.channels import read_montage
+from mne.channels import make_standard_montage
 
 from nose.tools import assert_equal, assert_sequence_equal, assert_true
 
@@ -41,6 +39,6 @@ def test_gen_raw_ch():
     assert_sequence_equal(raw.ch_names, ['bob', 'STI 014'])
 
     raw = _generate_raw(duration=1, n_chan=1, ch_names='standard_1020')
-    montage = read_montage('standard_1020')
+    montage = make_standard_montage('standard_1020')
     raw = raw.pick_types(eeg=True)
     assert_true(np.all([ch in montage.ch_names for ch in raw.ch_names]))

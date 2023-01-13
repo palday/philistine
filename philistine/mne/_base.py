@@ -1,22 +1,20 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2017-2018 Phillip Alday <phillip.alday@mpi.nl>
+# Copyright (C) 2017-2023 Phillip Alday <me@phillipalday.com>
 # License: BSD (3-clause)
 """MNE-based functionality not further categorized."""
-
-from __future__ import division, print_function
 
 from collections import namedtuple  # noqa: I100
 
 import matplotlib.pyplot as plt
 
-import mne
+import mne  # noqa: F401
 
 import numpy as np
 
 import pandas as pd
 
 from scipy import stats
-from scipy.ndimage.measurements import center_of_mass
+from scipy.ndimage import center_of_mass
 from scipy.signal import argrelmin, savgol_filter
 
 IafEst = namedtuple('IAFEstimate',
@@ -90,9 +88,10 @@ def savgol_iaf(raw, picks=None,  # noqa: C901
         e13064. doi:10.1111/psyp.13064
     """
     n_fft = int(raw.info['sfreq'] / resolution)
-    psd, freqs = mne.time_frequency.psd_welch(raw, picks=picks,
-                                              n_fft=n_fft, fmin=1.,
-                                              fmax=30.)
+    spectrum = raw.compute_psd(method="welch", picks=picks, n_fft=n_fft,
+                               fmin=1., fmax=30.)
+    psd = spectrum.get_data()
+    freqs = spectrum.freqs
     if ax is None:
         fig = plt.figure()  # noqa: F841
         ax = plt.gca()
@@ -253,8 +252,11 @@ def attenuation_iaf(raws, picks=None,  # noqa: C901
     # TODO: check value of savgol parameter
     def psd_est(r):
         n_fft = int(r.info['sfreq'] / resolution)
-        return mne.time_frequency.psd_welch(r, picks=picks, n_fft=n_fft,
-                                            fmin=1., fmax=30.)
+        spectrum = r.compute_psd(method="welch", picks=picks, n_fft=n_fft,
+                                 fmin=1., fmax=30.)
+        psd = spectrum.get_data()
+        freqs = spectrum.freqs
+        return psd, freqs
 
     psd, freqs = zip(*[psd_est(r) for r in raws])
     assert np.allclose(*freqs)
@@ -293,7 +295,7 @@ def attenuation_iaf(raws, picks=None,  # noqa: C901
                                       att_freqs <= fmax_bound)
         freqs_search = att_freqs[alpha_search]
         # set the window to the entire interval
-        # don't use the sname window_length because that's used as a
+        # don't use the name window_length because that's used as a
         # parameter for the function as a whole
         wlen = att_psd[alpha_search].shape[0]
         psd_search = savgol_filter(att_psd[alpha_search],
@@ -331,6 +333,9 @@ def attenuation_iaf(raws, picks=None,  # noqa: C901
         cog = None
     else:
         paf_idx = np.argmax(att_psd[alpha_band])
+        # print(att_psd[alpha_band])
+        # print(paf_idx)
+        # print(att_freqs[alpha_band])
         paf = att_freqs[alpha_band][paf_idx]
 
         cog_idx = center_of_mass(att_psd[alpha_band])

@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2018 Phillip Alday <phillip.alday@mpi.nl>
+# Copyright (C) 2023 Phillip Alday <me@phillipalday.com>
 # License: BSD (3-clause)
 """Savitzky-Golaf IAF tests."""
-
-from __future__ import division, print_function
 
 from nose.tools import assert_raises, assert_sequence_equal
 
@@ -55,7 +53,8 @@ def test_attenuation_sgf_iaf():
     assert_sequence_equal(iaf, (11.25, 11.25, (7., 12.75)))
 
     iaf = attenuation_iaf([raw, raw2], fmax=10.)
-    assert_sequence_equal(iaf, (9.75, 9.75, (9.5, 10.)))
+    # flat minima and argrel
+    assert_sequence_equal(iaf, (10.0, 9.75, (9.5, 10.)))
 
     # user set bounds
     iaf = attenuation_iaf([raw, raw2], fmin=7., fmax=13., resolution=1.,

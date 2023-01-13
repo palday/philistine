@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2018 Phillip Alday <phillip.alday@mpi.nl>
+# Copyright (C) 2023 Phillip Alday <me@phillipalday.com>
 # License: BSD (3-clause)
 """BrainVision Writer tests."""
-
-from __future__ import division, print_function
 
 import os
 from shutil import rmtree
@@ -82,7 +80,13 @@ def test_bv_writer_oi_cycle():
     # sfreq
     assert_equal(raw.info['sfreq'], raw_written.info['sfreq'])
     # events
-    assert_array_equal(mne.find_events(raw), mne.find_events(raw_written))
+    # we created events when simulating
+    # but new BV reader behavior returns annotations
+    read_events, _ = mne.events_from_annotations(raw_written,
+                                                 event_id=lambda x: int(x[-2:]),  # noqa: E501
+                                                 regexp="Stimulus")
+    read_events[:, 0] += 1
+    assert_array_equal(mne.find_events(raw), read_events)
 
     # ditch the stim channel
     raw = raw.copy().pick_types(eeg=True, stim=False)

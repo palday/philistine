@@ -2,5 +2,5 @@ numpy
 matplotlib
 scipy
 pandas
-mne
+mne>=1.3
 nose

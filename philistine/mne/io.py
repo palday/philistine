@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2017-2018 Phillip Alday <phillip.alday@mpi.nl>
+# Copyright (C) 2017-2023 Phillip Alday <me@phillipalday.com>
 # License: BSD (3-clause)
 """File I/O utilities for EEG data."""
 
@@ -59,26 +59,26 @@ def write_raw_brainvision(raw, vhdr_fname, events=True):
     numeric events are all treated as 'stimulus markers' and prefixed by an S
     on output.
 
-    Note however that only channels of type 'eeg','eog', 'meg' and 'misc' are 
-    exported. This follows from the observation that BrainVision recordings 
-    produced by BrainProducts devices generally only contain EEG and a few 
-    auxiliary channels. The stimulus channel is not exported as channel data, 
-    but, in line with BrainVision convention, the events array can be exported to 
-    the vmrk file. Channels marked as bad are also not exported, in line with 
-    MNE's default behavior of generally ignoring bad channels. As the current 
-    MNE readers do not do much with the channel-level annotations in the 
-    vhdr file, it is not really desireable to depend on encoding channel-type 
-    or "goodness" there. As such any information related to channel type or 
-    badness is lost upon export. 
-    
-    If you really want to export unsupported 
-    datatypes or bad channels, then create a copy, mark everything as good and 
-    of type 'eeg', and export. Be aware that the metadata will have to be 
-    corrected the next time the data is read. Other options are to use the 
-    private member functions directly that write each of the constituent files 
-    (understanding that their API is not guaranteed to be stable) or use the 
+    Note however that only channels of type 'eeg','eog', 'meg' and 'misc' are
+    exported. This follows from the observation that BrainVision recordings
+    produced by BrainProducts devices generally only contain EEG and a few
+    auxiliary channels. The stimulus channel is not exported as channel data,
+    but, in line with BrainVision convention, the events array can be exported
+    to the vmrk file. Channels marked as bad are also not exported, in line
+    with MNE's default behavior of generally ignoring bad channels. As the
+    current MNE readers do not do much with the channel-level annotations in
+    the vhdr file, it is not really desireable to depend on encoding
+    channel-type or "goodness" there. As such any information related to
+    channel-type or badness is lost upon export.
+
+    If you really want to export unsupported
+    datatypes or bad channels, then create a copy, mark everything as good and
+    of type 'eeg', and export. Be aware that the metadata will have to be
+    corrected the next time the data is read. Other options are to use the
+    private member functions directly that write each of the constituent files
+    (understanding that their API is not guaranteed to be stable) or use the
     pybv library.
-    
+
     In other words, a round trip import-export is a lossy operation in terms of
     metadata. The actual EEG recording should be losslessly preserved within
     the realm of floating point precision and the constraints above.

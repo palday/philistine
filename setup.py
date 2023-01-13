@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 #
-# Copyright (C) 2017-2018 Phillip Alday <phillip.alday@mpi.nl>
+# Copyright (C) 2017-2023 Phillip Alday <me@phillipalday.com>
 
 import os
 from os import path as op
@@ -23,7 +23,7 @@ descr = """Utility functions for EEG and statistical analysis in Python"""
 DISTNAME = 'philistine'
 DESCRIPTION = descr
 MAINTAINER = 'Phillip Alday'
-MAINTAINER_EMAIL = 'phillip.alday@mpi.nl'
+MAINTAINER_EMAIL = 'me@phillipalday.com'
 URL = 'https://gitlab.com/palday/philistine'
 LICENSE = 'BSD (3-clause)'
 DOWNLOAD_URL = 'https://gitlab.com/palday/philistine'
@@ -53,11 +53,12 @@ if __name__ == "__main__":
           version=VERSION,
           download_url=DOWNLOAD_URL,
           long_description=open('README.rst').read(),
+          long_description_content_type="text/x-rst",
           zip_safe=True,  # the package can run out of an .egg file
           classifiers=['Intended Audience :: Science/Research',
                        'Intended Audience :: Developers',
                        'License :: OSI Approved',
-                       'Programming Language :: Python',
+                       'Programming Language :: Python :: 3',
                        'Topic :: Software Development',
                        'Topic :: Scientific/Engineering',
                        'Operating System :: Microsoft :: Windows',
