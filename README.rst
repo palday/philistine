@@ -10,8 +10,8 @@ Status
 
 .. |pipeline status| image:: https://gitlab.com/palday/philistine/badges/master/pipeline.svg
    :target: https://gitlab.com/palday/philistine/commits/master
-.. |coverage report|  image:: https://gitlab.com/palday/philistine/badges/master/coverage.svg
-   :target: https://gitlab.com/palday/philistine/commits/master
+.. |coverage report|  image:: https://codecov.io/gitlab/palday/philistine/branch/master/graph/badge.svg
+   :target: https://codecov.io/gitlab/palday/philistine/
 .. |documentation status| image:: https://readthedocs.org/projects/philistine/badge/?version=latest
     :target: https://philistine.readthedocs.io/en/latest/?badge=latest
 .. |license| image:: https://img.shields.io/badge/License-BSD%203--Clause-blue.svg
